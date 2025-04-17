@@ -1,0 +1,23 @@
+# Dockerfile.dev
+
+FROM node:lts-alpine as build-stage
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Use environment variable or fallback to 5173
+ARG VUE_PORT=5173  # fallback to 5173 if not set
+ENV VUE_PORT=${VUE_PORT}
+
+# Expose the port for Vite (based on VUE_PORT)
+EXPOSE ${VUE_PORT}
+
+# Run dev server (accessible from host)
+CMD ["npm", "run", "dev"]

@@ -1,0 +1,53 @@
+services:
+  backend:
+    container_name: backend_container
+    build:
+      context: ./backend
+      dockerfile: ${DOCKERFILE:-Dockerfile.dev}
+    environment:
+      - FASTAPI_ENV=${FASTAPI_ENV:-development}
+      - FASTAPI_PORT=${FASTAPI_PORT:-8000}
+    ports:
+      - "${FASTAPI_PORT:-8000}:${FASTAPI_PORT:-8000}"
+    volumes:
+      - ./backend:/app
+    networks:
+      - app-network
+    restart: unless-stopped
+  frontend:
+    container_name: frontend_container
+    build:
+      context: ./frontend
+      dockerfile: ${DOCKERFILE:-Dockerfile.dev}
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - VUE_PORT=${VUE_PORT:-5173}
+    ports:
+      - ${VUE_PORT:-5173}:${VUE_PORT:-5173}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - app-network
+    depends_on:
+      - db
+  db:
+    container_name: postgres_container
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-database}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

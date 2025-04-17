@@ -1,0 +1,36 @@
+# Dockerfile.prod
+
+# Stage 1: Builder
+FROM python:3.11-slim as builder
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    build-essential \
+    gcc
+
+# ติดตั้ง Rust (สำหรับบาง dependencies เช่น orjson, cryptography)
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y \
+    && echo 'export PATH="/root/.cargo/bin:$PATH"' >> /root/.bashrc
+
+ENV PATH="/root/.cargo/bin:$PATH"
+
+WORKDIR /app
+COPY . .
+
+# Stage 2: Final Image
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY --from=builder /app /app
+
+# ติดตั้ง dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Use environment variable or fallback to 8000
+ARG FASTAPI_PORT=8000
+ENV FASTAPI_PORT=${FASTAPI_PORT}
+
+# Expose the port for Vite (based on FASTAPI_PORT)
+EXPOSE ${FASTAPI_PORT}
+
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${FASTAPI_PORT:-8000}"]
