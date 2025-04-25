@@ -1,13 +1,28 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.exc import OperationalError
 from app.config import settings
+import time
 
 DATABASE_URL = settings.SQLALCHEMY_DATABASE_URL
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+MAX_RETRIES = 10
+RETRY_DELAY = 2
 
+for i in range(MAX_RETRIES):
+    try:
+        engine = create_engine(DATABASE_URL, echo=True)
+        with engine.connect() as connection:
+            print("Database is ready!")
+        break
+    except OperationalError as e:
+        print(f"Database not ready yet (attempt {i+1}/{MAX_RETRIES}): {e}")
+        time.sleep(RETRY_DELAY)
+else:
+    raise RuntimeError("Database not available after multiple retries")
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 class Database:

@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
-from app.models.role import Role
 
 class User(Base):
     __tablename__ = "users"
@@ -10,9 +9,9 @@ class User(Base):
     name = Column(String, nullable=False)
     username = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
-    role_id = Column(Integer, ForeignKey('roles.id'), nullable=False)  # foreign key to Role
-
+    role_id = Column(Integer, ForeignKey('roles.id'), nullable=False)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now(), server_default=func.now())
 
-    role = relationship("Role", back_populates="users")  # relationship to Role
+    role = relationship("Role", back_populates="users")
+    # role = relationship("Role", backref="users")

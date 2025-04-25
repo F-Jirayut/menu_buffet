@@ -69,3 +69,6 @@ pnpm-debug.log*
 *.pid
 *.sock
 docker-compose.override.yml
+
+data/postgres
+redis_data

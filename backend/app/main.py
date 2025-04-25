@@ -1,9 +1,24 @@
 from fastapi import FastAPI
-from app.routes import user, role, auth
+from fastapi.staticfiles import StaticFiles
+import os
+from app.routes import user, role, auth, permission, menu_category, menu
 from app.database import Base, engine
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.middleware.cors import CORSMiddleware
+from app.config import settings
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.WEB_FRONT_URL],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+menus_dir = os.path.join(os.getcwd(), "storage", "uploads", "menus")
+app.mount("/storage/menus", StaticFiles(directory=menus_dir), name="menus")
 
 Base.metadata.create_all(bind=engine)
 
@@ -11,6 +26,9 @@ Base.metadata.create_all(bind=engine)
 app.include_router(user.router)
 app.include_router(role.router)
 app.include_router(auth.router)
+app.include_router(permission.router)
+app.include_router(menu_category.router)
+app.include_router(menu.router)
 # app.include_router(menu.router)
 # app.include_router(buffet_session.router)
 # app.include_router(order.router)

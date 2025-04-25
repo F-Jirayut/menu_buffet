@@ -1,0 +1,84 @@
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.controllers import menu_category_controller
+from app.schemas.menu_category import MenuCategoryCreate, MenuCategory, MenuCategoryUpdate
+from app.database import Database
+from app.dependencies.auth import get_current_user
+from app.dependencies.user_permission import check_permissions
+from app.schemas.base_response import BaseResponse
+from typing import List
+import re
+
+db_instance = Database()
+get_db = db_instance.get_db
+prefix = "/menu_categories"
+
+resource_permissions = {
+    "GET": [
+        {"pattern": re.compile(f"^{prefix}/$"), "permissions": ["Category.View"]},
+        {"pattern": re.compile(f"^{prefix}/[^/]+$"), "permissions": ["Category.View"]},
+    ],
+    "POST": [
+        {"pattern": re.compile(f"^{prefix}/$"), "permissions": ["Category.Create"]}
+    ],
+    "PUT": [
+        {"pattern": re.compile(f"^{prefix}/[^/]+$"), "permissions": ["Category.Update"]}
+    ],
+    "DELETE": [
+        {"pattern": re.compile(f"^{prefix}/[^/]+$"), "permissions": ["Category.Delete"]}
+    ]
+}
+
+router = APIRouter(
+    prefix=prefix,
+    tags=["Menu_categories"],
+    dependencies=[
+        Depends(get_current_user),
+        Depends(check_permissions(resource_permissions, get_db))
+    ]
+)
+
+@router.post("/", response_model=BaseResponse[MenuCategory])
+def create_menu_category(menu_category: MenuCategoryCreate, db: Session = Depends(get_db)):
+    db_menu_category = menu_category_controller.create_menu_category(db=db, menu_category=menu_category)
+    return BaseResponse(
+        success=True,
+        message="Menu category created successfully",
+        data=db_menu_category
+    )
+
+@router.get("/{menu_category_id}", response_model=BaseResponse[MenuCategory])
+def menu_category(menu_category_id: int, db: Session = Depends(get_db)):
+    db_menu_category =  menu_category_controller.get_menu_category_by_id(db, id=menu_category_id)
+    return BaseResponse(
+        success=True,
+        message="Menu category fetched successfully",
+        data=db_menu_category
+    )
+
+@router.get("/", response_model=BaseResponse[List[MenuCategory]])
+def get_all_menu_categories(db: Session = Depends(get_db)):
+    db_menu_categories = menu_category_controller.get_menu_categories(db)
+    return BaseResponse(
+        success=True,
+        message="Menu categories fetched successfully",
+        data=db_menu_categories
+    )
+
+@router.put("/{menu_category_id}", response_model=BaseResponse[MenuCategory])
+def update_menu_category(menu_category_id: int, menu_category: MenuCategoryUpdate, db: Session = Depends(get_db)):
+    db_menu_category = menu_category_controller.update_menu_category(db=db, menu_category_id=menu_category_id, menu_category=menu_category)
+    return BaseResponse(
+        success=True,
+        message="Menu Category updated successfully",
+        data=db_menu_category
+    )
+
+@router.delete("/{menu_category_id}", response_model=BaseResponse)
+def delete_menu_category(menu_category_id: int, db: Session = Depends(get_db)):
+    menu_category_controller.delete_menu_category(db=db, menu_category_id=menu_category_id)
+    return BaseResponse(
+        success=True,
+        message="Menu Category deleted successfully",
+        data=None
+    )

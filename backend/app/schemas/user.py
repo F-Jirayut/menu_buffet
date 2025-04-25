@@ -1,14 +1,14 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
-from app.schemas.role import Role  # ใช้ใน response
+from typing import Optional, List
+from app.schemas.role import Role
 
 class UserBase(BaseModel):
     name: str
     username: str
 
 class UserCreate(UserBase):
-    password: str
+    password: Optional[str] = None
     role_id: int
 
 class User(UserBase):
@@ -17,9 +17,21 @@ class User(UserBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class UserLogin(BaseModel):
     username: str
     password: str
+
+
+class UserProfile(BaseModel):
+    id: int
+    name: str
+    username: str
+    role_id: int
+    role_name: str
+    created_at: datetime
+    updated_at: datetime
+    permissions: Optional[List] = None

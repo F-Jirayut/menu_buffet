@@ -1,0 +1,96 @@
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.controllers import permission_controller
+from app.schemas.permission import PermissionCreate, Permission, GroupedPermissions
+from app.schemas.base_response import BaseResponse
+from app.database import Database
+from app.dependencies.auth import get_current_user
+from pydantic import BaseModel
+from typing import List, Dict
+from app.dependencies.user_permission import check_permissions
+import re
+
+db_instance = Database()
+get_db = db_instance.get_db
+prefix = "/permissions"
+
+resource_permissions = {
+    "GET": [
+        {"pattern": re.compile(f"^{prefix}/$"), "permissions": ["Permission.View"]},
+        {"pattern": re.compile(f"^{prefix}/[^/]+$"), "permissions": ["Permission.View"]},
+    ],
+    "POST": [
+        {"pattern": re.compile(f"^{prefix}/$"), "permissions": ["Permission.Create"]}
+    ],
+    "PUT": [
+        {"pattern": re.compile(f"^{prefix}/[^/]+$"), "permissions": ["Permission.Update"]}
+    ],
+    "DELETE": [
+        {"pattern": re.compile(f"^{prefix}/[^/]+$"), "permissions": ["Permission.Delete"]}
+    ]
+}
+
+router = APIRouter(
+    prefix=prefix,
+    tags=["Permissions"],
+    dependencies=[
+        Depends(get_current_user),
+        Depends(check_permissions(resource_permissions, get_db))
+    ]
+)
+
+@router.post("/", response_model=BaseResponse[Permission])
+def create_permission(permission: PermissionCreate, db: Session = Depends(get_db)):
+    db_permission = permission_controller.create_permission(db=db, permission=permission)
+    return BaseResponse(
+        success=True,
+        message="Permission created successfully",
+        data=db_permission
+    )
+
+@router.get("/{permission_id}", response_model=BaseResponse[Permission])
+def permission(permission_id: int, db: Session = Depends(get_db)):
+    db_permission = permission_controller.get_permission_by_id(db, id=permission_id)
+    return BaseResponse(
+        success=True,
+        message="Permission fetched successfully",
+        data=db_permission
+    )
+
+@router.get("/", response_model=BaseResponse[List[Permission]])
+def get_all_permissions(db: Session = Depends(get_db)):
+    db_permissions = permission_controller.get_permissions(db)
+    return BaseResponse(
+        success=True,
+        message="Permissions fetched successfully",
+        data=db_permissions
+    )
+
+@router.get("/groups/list", response_model=BaseResponse[GroupedPermissions])
+def get_grouped_permissions(db: Session = Depends(get_db)):
+    db_permissions = permission_controller.get_permissions(db)
+    grouped_permissions = permission_controller.get_grouped_permissions(db_permissions)
+
+    return BaseResponse(
+        success=True,
+        message="Grouped permissions fetched successfully",
+        data=grouped_permissions
+    )
+
+@router.put("/{permission_id}", response_model=BaseResponse[Permission])
+def update_permission(permission_id: int, permission: PermissionCreate, db: Session = Depends(get_db)):
+    db_permission = permission_controller.update_permission(db=db, permission_id=permission_id, permission=permission)
+    return BaseResponse(
+        success=True,
+        message="Permission updated successfully",
+        data=db_permission
+    )
+
+@router.delete("/{permission_id}", response_model=BaseResponse)
+def delete_permission(permission_id: int, db: Session = Depends(get_db)):
+    permission_controller.delete_permission(db=db, permission_id=permission_id)
+    return BaseResponse(
+        success=True,
+        message="Permission deleted successfully",
+        data=None
+    )

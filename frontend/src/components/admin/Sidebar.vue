@@ -7,80 +7,103 @@
         <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
             <li class="nav-item">
                 <a href="#" class="nav-link align-middle px-0">
-                    <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">Home</span>
+                    <i class="fs-4 bi-speedometer2"></i> <span class="ms-1 d-none d-sm-inline">Dashboard</span>
                 </a>
             </li>
-            <li>
-                <a href="#submenu1" data-bs-toggle="collapse" class="nav-link px-0 align-middle">
-                    <i class="fs-4 bi-speedometer2"></i> <span class="ms-1 d-none d-sm-inline">Dashboard</span> </a>
-                <ul class="collapse nav ms-1" id="submenu1" data-bs-parent="#menu">
-                    <li class="w-100">
-                        <a href="#" class="nav-link px-0"> <span class="d-none d-sm-inline">Item</span> 1 </a>
+            <li v-if="permissionSet.has('Role.View')">
+                <router-link to="/admin/roles" class="nav-link px-0 align-middle">
+                    <i class="fs-4 bi bi-person-workspace"></i>
+                    <span class="ms-1 d-none d-sm-inline">Roles</span>
+                </router-link>
+            </li>
+            <li v-if="permissionSet.has('Permission.View')">
+                <router-link to="/admin/permissions" class="nav-link px-0 align-middle">
+                    <i class="fs-4 bi bi-key-fill"></i>
+                    <span class="ms-1 d-none d-sm-inline">Permissions</span>
+                </router-link>
+            </li>
+            <li v-if="permissionSet.has('User.View')">
+                <router-link to="/admin/users" class="nav-link px-0 align-middle">
+                    <i class="fs-4 bi bi-person"></i>
+                    <span class="ms-1 d-none d-sm-inline">Users</span>
+                </router-link>
+            </li>
+            <li v-if="permissionSet.has('Menu.View') || permissionSet.has('Category.View')">
+                <a href="#foods" data-bs-toggle="collapse" class="nav-link px-0 align-middle d-flex justify-content-between align-items-center" aria-expanded="false">
+                    <span>
+                    <i class="fs-4 bi-card-list"></i>
+                    <span class="ms-1 d-none d-sm-inline">Foods</span>
+                    </span>
+                    <i class="bi bi-chevron-down collapse-toggle-icon ms-2 d-none d-sm-inline"></i>
+                </a>
+                <ul class="collapse nav ms-2" :class="{ show: isMenuActive || isCategoryActive }" id="foods" data-bs-parent="#menu">
+                    <li class="w-100" v-if="permissionSet.has('Menu.View')">
+                        <router-link to="/admin/foods/menus" class="nav-link px-0"> <span class="d-none d-sm-inline">Menus</span> </router-link>
                     </li>
-                    <li>
-                        <a href="#" class="nav-link px-0"> <span class="d-none d-sm-inline">Item</span> 2 </a>
+                    <li class="w-100" v-if="permissionSet.has('Category.View')">
+                        <router-link to="/admin/foods/categories" class="nav-link px-0"> <span class="d-none d-sm-inline">Categories</span> </router-link>
                     </li>
                 </ul>
-            </li>
-            <li>
-                <a href="#" class="nav-link px-0 align-middle">
-                    <i class="fs-4 bi-table"></i> <span class="ms-1 d-none d-sm-inline">Orders</span></a>
-            </li>
-            <li>
-                <a href="#submenu2" data-bs-toggle="collapse" class="nav-link px-0 align-middle ">
-                    <i class="fs-4 bi-bootstrap"></i> <span class="ms-1 d-none d-sm-inline">Bootstrap</span></a>
-                <ul class="collapse nav ms-1" id="submenu2" data-bs-parent="#menu">
-                    <li class="w-100">
-                        <a href="#" class="nav-link px-0"> <span class="d-none d-sm-inline">Item</span> 1</a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-link px-0"> <span class="d-none d-sm-inline">Item</span> 2</a>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <a href="#submenu3" data-bs-toggle="collapse" class="nav-link px-0 align-middle">
-                    <i class="fs-4 bi-grid"></i> <span class="ms-1 d-none d-sm-inline">Products</span> </a>
-                    <ul class="collapse nav ms-1" id="submenu3" data-bs-parent="#menu">
-                    <li class="w-100">
-                        <a href="#" class="nav-link px-0"> <span class="d-none d-sm-inline">Product</span> 1</a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-link px-0"> <span class="d-none d-sm-inline">Product</span> 2</a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-link px-0"> <span class="d-none d-sm-inline">Product</span> 3</a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-link px-0"> <span class="d-none d-sm-inline">Product</span> 4</a>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <a href="#" class="nav-link px-0 align-middle">
-                    <i class="fs-4 bi-people"></i> <span class="ms-1 d-none d-sm-inline">Customers</span> </a>
             </li>
         </ul>
         <hr>
         <div class="dropdown pb-4">
             <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="https://github.com/mdo.png" alt="hugenerd" width="30" height="30" class="rounded-circle">
-                <span class="d-none d-sm-inline mx-1">loser</span>
+                <i class="bi bi-person-circle fs-4 me-2"></i>
+                <span class="d-none d-sm-inline mx-1">{{ auth.user?.username || 'User' }}</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-                <li><a class="dropdown-item" href="#">New project...</a></li>
+                <!-- <li><a class="dropdown-item" href="#">New project...</a></li>
                 <li><a class="dropdown-item" href="#">Settings</a></li>
                 <li><a class="dropdown-item" href="#">Profile</a></li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="#">Sign out</a></li>
+                <li><hr class="dropdown-divider"></li> -->
+                <li><a class="dropdown-item" href="#" @click.prevent="handleLogout">Logout</a></li>
             </ul>
         </div>
     </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { useRoute } from 'vue-router'
+import { computed } from 'vue';
+import { useAuthStore } from '@/stores/authStore';
+import router from '@/router';
+const auth = useAuthStore()
+const permissionSet = computed(() => {
+    return new Set(auth.user?.permissions)
+})
 
-<style scoped></style>
+const handleLogout = async () => {
+    await auth.logout()
+    router.push('/admin/login')
+}
+
+const route = useRoute()
+
+const isMenuActive = computed(() => {
+  return route.path.startsWith('/admin/foods/menus')
+})
+
+const isCategoryActive = computed(() => {
+  return route.path.startsWith('/admin/foods/categories')
+})
+
+const isFoodsGroupActive = computed(() => {
+  return isMenuActive.value || isCategoryActive.value
+})
+
+</script>
+
+<style scoped>
+/* หมุนลูกศร */
+.collapse-toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+/* เมนูเปิด: ลูกศรหมุนขึ้น */
+a[aria-expanded="true"] .collapse-toggle-icon {
+  transform: rotate(180deg);
+}
+
+</style>
