@@ -109,7 +109,7 @@ import Layout from '@/components/admin/Layout.vue'
 import { useUserStore } from '@/stores/userStore'
 import { useRouter, useRoute } from 'vue-router'
 import { showSuccess, showError } from '@/utils/swal'
-import { getRoles } from '@/services/roleService'
+import { getOptions } from '@/services/optionService'
 
 const usersStore = useUserStore()
 const router = useRouter()
@@ -126,7 +126,7 @@ const role_id = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+// const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
 onMounted(async () => {
 
@@ -146,7 +146,7 @@ onMounted(async () => {
     }
   }
 
-  const response = await getRoles()
+  const response = await getOptions({ type : "roles"})
   const { data } = response.data
   roleSelectOption.value = data
 })

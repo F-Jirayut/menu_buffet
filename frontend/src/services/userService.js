@@ -1,21 +1,25 @@
 import { axiosInstance } from '@/services/axiosConfig'
 
-export const getUsers = async () => {
-    return await axiosInstance.get('/users')
+const prefix = 'users'
+
+export const getUsers = async ({ page = 1, page_size = 10, search = null }) => {
+    return await axiosInstance.get(`/${prefix}`, {
+        params: { page, page_size, search },
+    })
 }
 
 export const createUser = async (data) => {
-    return await axiosInstance.post('/users', data)
+    return await axiosInstance.post(`/${prefix}`, data)
 }
 
 export const updateUser = async (id, data) => {
-    return await axiosInstance.put(`/users/${id}`, data)
+    return await axiosInstance.put(`/${prefix}/${id}`, data)
 }
 
 export const deleteUser = async (id) => {
-    return await axiosInstance.delete(`/users/${id}`)
+    return await axiosInstance.delete(`/${prefix}/${id}`)
 }
 
 export const getUserById = async (id) => {
-    return await axiosInstance.get(`/users/${id}`)
+    return await axiosInstance.get(`/${prefix}/${id}`)
 }

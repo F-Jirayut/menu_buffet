@@ -8,7 +8,7 @@ import time
 DATABASE_URL = settings.SQLALCHEMY_DATABASE_URL
 
 MAX_RETRIES = 10
-RETRY_DELAY = 2
+RETRY_DELAY = 3
 
 for i in range(MAX_RETRIES):
     try:

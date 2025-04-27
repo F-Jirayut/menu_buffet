@@ -1,112 +1,121 @@
 <template>
-    <Layout>
-      <div class="container-fluid">
-        <div class="row mb-4">
-          <div class="col-12">
-            <h1 class="text-left">Permissions Management</h1>
-          </div>
+  <Layout>
+    <div class="container-fluid">
+      <div class="row mb-4">
+        <div class="col-12">
+          <h1 class="text-left">Permissions Management</h1>
         </div>
-  
+      </div>
+
       <!-- Search & Add Button -->
       <div class="row align-items-center mb-4">
         <div class="col-md-8">
-          <div class="input-group shadow-sm">
-            <span class="input-group-text bg-white">
-              <i class="bi bi-search"></i>
-            </span>
-            <input
-              v-model="search"
-              type="text"
-              class="form-control"
-              placeholder="Search Permissions by name..."
-            />
-          </div>
+          <SearchBox
+            v-model="search"
+            placeholder="Search Permissions by ID or Name..."
+            @search="handleSearch"
+          />
         </div>
-        <div class="col-md-4 text-md-end text-start mt-2 mt-md-0" v-if="permissionSet.has('Permission.Create')">
-          <router-link to="/admin/permissions/edit" class="btn btn-primary shadow-sm">
+        <div
+          class="col-md-4 text-md-end text-start mt-2 mt-md-0"
+          v-if="permissionSet.has('Permission.Create')"
+        >
+          <router-link
+            to="/admin/permissions/edit"
+            class="btn btn-primary shadow-sm"
+          >
             <i class="bi bi-plus-lg me-1"></i> Add Permissions
           </router-link>
         </div>
       </div>
-  
-        <!-- Section: Table -->
-        <div class="row">
-          <div class="col-12">
-            <div class="card shadow p-4">
-              <!-- <h2 class="text-center mb-4">Permissions</h2> -->
-              <table class="table table-bordered">
-                <thead class="table-light">
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="permission in filteredPermissions"
-                    :key="permission.id"
-                  >
-                    <td>{{ permission.id }}</td>
-                    <td>{{ permission.name }}</td>
-                    <td>
-                      <div v-if="permission.name !== 'root' && permission.name !== 'admin'">
-                        <router-link v-if="permissionSet.has('Permission.Update')" :to="`/admin/permissions/edit/${permission.id}`" class="btn btn-warning btn-sm me-2">Edit</router-link>
-                        <button v-if="permissionSet.has('Permission.Delete')" class="btn btn-danger btn-sm" @click="deletePermission(permission.id)">Delete</button>
-                      </div>
-                    </td>
-                  </tr>
-                  <!-- <tr v-if="filteredPermissions.length === 0">
-                    <td colspan="3" class="text-center">Data not found.</td>
-                  </tr> -->
-                </tbody>
-              </table>
-            </div>
-          </div>
+
+      <!-- Table Section -->
+      <div class="row">
+        <div class="col-12">
+          <DataTable
+            :data="permissionsStore.permissions"
+            :columns="columns"
+            :pagination="permissionsStore.pagination"
+            :current-page="currentPage"
+            resource-type="admin/permissions"
+            :can-edit="permissionSet.has('Permission.Update')"
+            :can-delete="permissionSet.has('Permission.Delete')"
+            @page-changed="handlePageChange"
+            @delete-item="deletePermission"
+          />
         </div>
       </div>
-    </Layout>
-  </template>
-  
-  <script setup>
-  import { ref, computed, onMounted } from 'vue'
-  import Layout from '@/components/admin/Layout.vue'
-  import { usePermissionStore } from '@/stores/permissionStore'
-  import { showSuccessOk, showError, showLoading, closeSwal, showConfirm } from '@/utils/swal'
-  import { useAuthStore } from '@/stores/authStore'
+    </div>
+  </Layout>
+</template>
 
-  const auth = useAuthStore()
-  const permissionsStore = usePermissionStore()
-  const permissionSet = computed(() => {
-    return new Set(auth.user?.permissions)
-  })
-  const search = ref('')
-  
-  onMounted(async () => {
-    await permissionsStore.fetchData()
-  })
-  
-  const filteredPermissions = computed(() => {
-    return permissionsStore.permissions.filter((permission) =>
-        permission.name.toLowerCase().includes(search.value.toLowerCase())
-    )
-  })
-  
-  const deletePermission = async (id) => {
-    const confirmed = await showConfirm('คุณต้องการลบข้อมูลนี้หรือไม่?')
+<script setup>
+import { ref, computed, onMounted, watch } from "vue";
+import Layout from "@/components/admin/Layout.vue";
+import DataTable from "@/components/admin/DataTable.vue";
+import SearchBox from "@/components/admin/SearchBox.vue";
+import { usePermissionStore } from "@/stores/permissionStore";
+import { useAuthStore } from "@/stores/authStore";
+import {
+  showSuccessOk,
+  showError,
+  showLoading,
+  closeSwal,
+  showConfirm,
+} from "@/utils/swal";
 
-    if (confirmed.isConfirmed) {
-        showLoading()
-        await permissionsStore.deleteData(id)
-        if (permissionsStore.error) {
-            closeSwal()
-            showError('ลบข้อมูลไม่สำเร็จ', permissionsStore.error)
-            return
-        }
-        closeSwal()
-        await auth.fetchProfile()
-        showSuccessOk('ลบข้อมูลสำเร็จ')
+const auth = useAuthStore();
+const permissionsStore = usePermissionStore();
+const permissionSet = computed(() => new Set(auth.user?.permissions));
+
+const search = ref("");
+const currentPage = ref(1);
+const pageSize = ref(10);
+
+const columns = [
+  { label: "ID", key: "id" },
+  { label: "Name", key: "name" },
+];
+
+onMounted(async () => {
+  await fetchPermissions();
+});
+
+watch(currentPage, async () => {
+  await fetchPermissions();
+});
+
+const fetchPermissions = async () => {
+  await permissionsStore.fetchData(
+    currentPage.value,
+    pageSize.value,
+    search.value
+  );
+};
+
+const handleSearch = async () => {
+  currentPage.value = 1;
+  await fetchPermissions();
+};
+
+const handlePageChange = async (page) => {
+  currentPage.value = page;
+};
+
+const deletePermission = async (id) => {
+  const confirmed = await showConfirm("คุณต้องการลบข้อมูลนี้หรือไม่?");
+  if (confirmed.isConfirmed) {
+    showLoading();
+    await permissionsStore.deleteData(id);
+    if (permissionsStore.error) {
+      closeSwal();
+      showError("ลบข้อมูลไม่สำเร็จ", permissionsStore.error);
+      return;
     }
+    closeSwal();
+    await auth.fetchProfile();
+    await fetchPermissions();
+    showSuccessOk("ลบข้อมูลสำเร็จ");
   }
-  </script>
-  
+};
+</script>

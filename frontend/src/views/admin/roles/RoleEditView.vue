@@ -126,7 +126,6 @@ const permissionGroups = computed(() => {
 
 onMounted(async () => {
   await permissionStore.fetchPermissionGroups()
-  console.log('Permission groups:', permissionGroups.value)
   if (isEditMode.value) {
     const role = await rolesStore.fetchDataById(id, { params: { include: 'permissions' } });
     if (role) {

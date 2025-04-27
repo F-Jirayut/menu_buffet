@@ -4,6 +4,7 @@ import { getMenuCategories, createMenuCategory, updateMenuCategory, deleteMenuCa
 
 export const useMenuCategoriestore = defineStore('menucategory', () => {
   const menuCategories = ref([]);
+  const pagination = ref({})
   const loading = ref(false);
   const error = ref(null);
 
@@ -21,13 +22,14 @@ export const useMenuCategoriestore = defineStore('menucategory', () => {
     }
   }
 
-  const fetchData = async () => {
+  const fetchData = async (page = 1, pageSize = 10, search = null) => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await getMenuCategories();
-      const { success, message, data } = response.data;
+      const response = await getMenuCategories({ page, page_size: pageSize, search: search });
+      const { success, message, data, pagination : paginationData } = response.data;
       menuCategories.value = data;
+      pagination.value = paginationData
 
     } catch (err) {
       error.value = err.response?.data?.detail || err.message || 'Failed to fetch data';
@@ -36,11 +38,11 @@ export const useMenuCategoriestore = defineStore('menucategory', () => {
     }
   };
 
-  const createData = async (menucategoryData) => {
+  const createData = async (menuCategoryData) => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await createMenuCategory(menucategoryData);
+      const response = await createMenuCategory(menuCategoryData);
       const { success, message, data } = response.data;
       menuCategories.value.push(data);
     } catch (err) {
@@ -81,6 +83,7 @@ export const useMenuCategoriestore = defineStore('menucategory', () => {
   };
   return {
     menuCategories,
+    pagination,
     loading,
     error,
     fetchDataById,

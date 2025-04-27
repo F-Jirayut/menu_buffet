@@ -4,9 +4,6 @@ const API = import.meta.env.VITE_API_BASE_URL
 
 const axiosInstance = axios.create({
   baseURL: API,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 })
 
 const setAuthorizationHeader = (token) => {

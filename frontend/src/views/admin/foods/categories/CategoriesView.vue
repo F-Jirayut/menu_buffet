@@ -1,109 +1,121 @@
 <template>
-    <Layout>
-      <div class="container-fluid">
-        <div class="row mb-4">
-          <div class="col-12">
-            <h1 class="text-left">Categories Management</h1>
-          </div>
-        </div>
-  
-        <!-- Search & Add Button -->
-        <div class="row align-items-center mb-4">
-          <div class="col-md-8">
-            <div class="input-group shadow-sm">
-              <span class="input-group-text bg-white">
-                <i class="bi bi-search"></i>
-              </span>
-              <input
-                v-model="search"
-                type="text"
-                class="form-control"
-                placeholder="Search categoriess by name..."
-              />
-            </div>
-          </div>
-          <div class="col-md-4 text-md-end text-start mt-2 mt-md-0" v-if="permissionSet.has('Category.Create')">
-            <router-link to="/admin/foods/categories/edit" class="btn btn-primary shadow-sm">
-              <i class="bi bi-plus-lg me-1"></i> Add Categories
-            </router-link>
-          </div>
-        </div>
-  
-        <!-- Section: Table -->
-        <div class="row">
-          <div class="col-12">
-            <div class="card shadow p-4">
-              <!-- <h2 class="text-center mb-4">Users</h2> -->
-              <table class="table table-bordered">
-                <thead class="table-light">
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="menucategory in filteredMenuCategories" :key="menucategory.id">
-                    <td>{{ menucategory.id }}</td>
-                    <td>{{ menucategory.name }}</td>
-                    <td>
-                      <div v-if="menucategory.name !== 'root' && menucategory.name !== 'admin'">
-                        <router-link v-if="permissionSet.has('Category.Update')" :to="`/admin/foods/categories/edit/${menucategory.id}`" class="btn btn-warning btn-sm me-2">Edit</router-link>
-                        <button v-if="permissionSet.has('Category.Delete')" class="btn btn-danger btn-sm" @click="deleteMenuCategory(menucategory.id)">Delete</button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr v-if="filteredMenuCategories.length === 0">
-                    <td colspan="5" class="text-center">Data not found.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+  <Layout>
+    <div class="container-fluid">
+      <div class="row mb-4">
+        <div class="col-12">
+          <h1 class="text-left">Categories Management</h1>
         </div>
       </div>
-    </Layout>
-  </template>
-  
+
+      <!-- Search & Add Button -->
+      <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+          <SearchBox
+            v-model="search"
+            placeholder="Search Categories by ID or Name..."
+            @search="handleSearch"
+          />
+        </div>
+        <div
+          class="col-md-4 text-md-end text-start mt-2 mt-md-0"
+          v-if="permissionSet.has('Category.Create')"
+        >
+          <router-link
+            to="/admin/foods/categories/edit"
+            class="btn btn-primary shadow-sm"
+          >
+            <i class="bi bi-plus-lg me-1"></i> Add Categories
+          </router-link>
+        </div>
+      </div>
+
+      <!-- Table Section -->
+      <div class="row">
+        <div class="col-12">
+          <DataTable
+            :data="menuCategoriesStore.menuCategories"
+            :columns="columns"
+            :pagination="menuCategoriesStore.pagination"
+            :current-page="currentPage"
+            resource-type="admin/foods/categories"
+            :can-edit="permissionSet.has('Category.Update')"
+            :can-delete="permissionSet.has('Category.Delete')"
+            @page-changed="handlePageChange"
+            @delete-item="deleteMenuCategory"
+          />
+        </div>
+      </div>
+    </div>
+  </Layout>
+</template>
 
 <script setup>
-  import Layout from '@/components/admin/Layout.vue';
-  import { ref, computed, onMounted } from 'vue'
-  import { useMenuCategoriestore } from '@/stores/menuCategoryStore'
-  import { showSuccessOk, showError, showLoading, closeSwal, showConfirm } from '@/utils/swal'
-  import { useAuthStore } from '@/stores/authStore'
+import { ref, computed, onMounted, watch } from "vue";
+import Layout from "@/components/admin/Layout.vue";
+import DataTable from "@/components/admin/DataTable.vue";
+import SearchBox from "@/components/admin/SearchBox.vue";
+import { useMenuCategoriestore } from "@/stores/menuCategoryStore";
+import { useAuthStore } from "@/stores/authStore";
+import {
+  showSuccessOk,
+  showError,
+  showLoading,
+  closeSwal,
+  showConfirm,
+} from "@/utils/swal";
 
-  const auth = useAuthStore()
+const auth = useAuthStore();
+const menuCategoriesStore = useMenuCategoriestore();
+const permissionSet = computed(() => new Set(auth.user?.permissions));
 
-  const menuCategoriesStore = useMenuCategoriestore()
-  const search = ref('')
-  const permissionSet = computed(() => {
-    return new Set(auth.user?.permissions)
-  })
-  
-  onMounted(async () => {
-    await menuCategoriesStore.fetchData()
-  })
-  
-  const filteredMenuCategories = computed(() => {
-    return menuCategoriesStore.menuCategories.filter((menucategory) =>
-        menucategory.name.toLowerCase().includes(search.value.toLowerCase())
-    )
-  })
-  
-  const deleteMenuCategory = async (id) => {
-    const confirmed = await showConfirm('คุณต้องการลบข้อมูลนี้หรือไม่?')
+const search = ref("");
+const currentPage = ref(1);
+const pageSize = ref(10);
 
-    if (confirmed.isConfirmed) {
-        showLoading()
-        await menuCategoriesStore.deleteData(id)
-        if (menuCategoriesStore.error) {
-            closeSwal()
-            showError('ลบข้อมูลไม่สำเร็จ', menuCategoriesStore.error)
-            return
-        }
-        closeSwal()
-        showSuccessOk('ลบข้อมูลสำเร็จ')
+const columns = [
+  { label: "ID", key: "id" },
+  { label: "Name", key: "name" },
+];
+
+onMounted(async () => {
+  await fetchMenuCategories();
+});
+
+watch(currentPage, async () => {
+  await fetchMenuCategories();
+});
+
+const fetchMenuCategories = async () => {
+  await menuCategoriesStore.fetchData(
+    currentPage.value,
+    pageSize.value,
+    search.value
+  );
+};
+
+const handleSearch = async () => {
+  currentPage.value = 1;
+  await fetchMenuCategories();
+};
+
+const handlePageChange = async (page) => {
+  currentPage.value = page;
+};
+
+const deleteMenuCategory = async (id) => {
+  const confirmed = await showConfirm("คุณต้องการลบข้อมูลนี้หรือไม่?");
+  if (confirmed.isConfirmed) {
+    showLoading();
+    await menuCategoriesStore.deleteData(id);
+    if (menuCategoriesStore.error) {
+      closeSwal();
+      showError("ลบข้อมูลไม่สำเร็จ", menuCategoriesStore.error);
+      return;
     }
+    closeSwal();
+    await auth.fetchProfile();
+    await fetchMenuCategories();
+    showSuccessOk("ลบข้อมูลสำเร็จ");
   }
+};
 </script>

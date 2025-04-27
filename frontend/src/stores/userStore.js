@@ -5,6 +5,7 @@ import { getUsers, createUser, updateUser, deleteUser, getUserById } from '@/ser
 export const useUserStore = defineStore('user', () => {
   const user = ref({});
   const users = ref([]);
+  const pagination = ref({})
   const loading = ref(false);
   const error = ref(null);
 
@@ -23,13 +24,14 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  const fetchData = async () => {
+  const fetchData = async (page = 1, pageSize = 10, search = null) => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await getUsers();
-      const { success, message, data } = response.data;
+      const response = await getUsers({ page, page_size: pageSize, search: search });
+      const { success, message, data, pagination : paginationData } = response.data;
       users.value = data;
+      pagination.value = paginationData
     } catch (err) {
       error.value = err.response?.data?.detail || err.message || 'Failed to fetch data';
     } finally {
@@ -82,6 +84,7 @@ export const useUserStore = defineStore('user', () => {
   return {
     user,
     users,
+    pagination,
     loading,
     error,
     fetchDataById,

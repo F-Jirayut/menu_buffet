@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import or_, cast, String
 from app.models import Permission, RolePermission
 from app.schemas.permission import PermissionCreate
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 def get_permission_by_id(db: Session, id: int) -> Permission:
     db_permission = db.query(Permission).order_by(Permission.id).filter(Permission.id == id).first()

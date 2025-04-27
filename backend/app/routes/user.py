@@ -1,13 +1,16 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from app.controllers import user_controller
 from app.schemas.user import UserCreate, User
+from app.models import User as ModelUser
 from app.database import Database
 from app.dependencies.auth import get_current_user
 from app.schemas.base_response import BaseResponse
-from typing import List
+from typing import List, Optional
 from app.dependencies.user_permission import check_permissions
 import re
+from app.utils.query_utils import get_pagination_items, count_pagination_items
+from app.schemas.pagination import Pagination
 
 db_instance = Database()
 get_db = db_instance.get_db
@@ -57,12 +60,41 @@ def user(user_id: int, db: Session = Depends(get_db)):
     )
 
 @router.get("/", response_model=BaseResponse[List[User]])
-def get_all_users(db: Session = Depends(get_db)):
-    db_users = user_controller.get_users(db)
+def get_all_users(
+    db: Session = Depends(get_db),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1, le=100),
+    search: Optional[str] = Query(None)
+):
+    skip = (page - 1) * page_size
+    db_users = get_pagination_items(
+        db=db,
+        model=ModelUser,
+        skip=skip,
+        limit=page_size,
+        search=search,
+        search_fields=["id", "name"]
+    )
+    
+    total = count_pagination_items(
+        db=db,
+        model=ModelUser,
+        search=search,
+        search_fields=["id", "name"]
+    )
+    
+    pages = (total + page_size - 1) // page_size
+
     return BaseResponse(
         success=True,
         message="Users fetched successfully",
-        data=db_users
+        data=db_users,
+        pagination=Pagination(
+            page=page,
+            page_size=page_size,
+            total=total,
+            pages=pages
+        )
     )
 
 @router.put("/{user_id}", response_model=BaseResponse[User])

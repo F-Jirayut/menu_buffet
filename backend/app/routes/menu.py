@@ -1,13 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Form, Query
 from sqlalchemy.orm import Session
 from app.controllers import menu_controller
 from app.schemas.menu import MenuResponse, MenuCreate, MenuUpdate
+from app.models import Menu
 from app.schemas.base_response import BaseResponse
+from app.schemas.pagination import Pagination
 from app.database import Database
 from app.dependencies.auth import get_current_user
 from app.dependencies.user_permission import check_permissions
-from typing import List, Optional, Dict, Union
+from typing import List, Optional
 import re
+from app.utils.query_utils import get_pagination_items, count_pagination_items
 
 db_instance = Database()
 get_db = db_instance.get_db
@@ -45,7 +48,7 @@ def create_menu(
     category_id: int = Form(...),
     is_available: bool = Form(True),
     image: UploadFile = File(None),
-    sort_order: str = Form(None),
+    sort_order: Optional[int] = Form(None),
     db: Session = Depends(get_db),
 ):
     menu_create = MenuCreate(
@@ -69,12 +72,45 @@ def create_menu(
     )
 
 @router.get("/", response_model=BaseResponse[List[MenuResponse]])
-def get_all_menus(db: Session = Depends(get_db)):
-    db_menus = menu_controller.get_menus(db)
+def get_all_menus(
+    db: Session = Depends(get_db),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1, le=100),
+    search: Optional[str] = Query(None)
+):
+    skip = (page - 1) * page_size
+    db_menus = get_pagination_items(
+        db=db,
+        model=Menu,
+        skip=skip,
+        limit=page_size,
+        search=search,
+        search_fields=["id", "name"],
+        order_by=[
+            ("sort_order", False),
+            ("id", False),
+        ]
+    )
+    
+    total = count_pagination_items(
+        db=db,
+        model=Menu,
+        search=search,
+        search_fields=["id", "name"]
+    )
+    
+    pages = (total + page_size - 1) // page_size
+
     return BaseResponse(
         success=True,
-        message="Menu fetched successfully",
-        data=db_menus
+        message="Menus fetched successfully",
+        data=db_menus,
+        pagination=Pagination(
+            page=page,
+            page_size=page_size,
+            total=total,
+            pages=pages
+        )
     )
 
 @router.get('/{menu_id}', response_model=BaseResponse[MenuResponse])

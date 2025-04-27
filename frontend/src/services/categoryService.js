@@ -2,8 +2,10 @@ import { axiosInstance } from '@/services/axiosConfig'
 
 const prefix = 'menu_categories'
 
-export const getMenuCategories = async () => {
-    return await axiosInstance.get(`/${prefix}`)
+export const getMenuCategories = async ({ page = 1, page_size = 10, search = null }) => {
+    return await axiosInstance.get(`/${prefix}`, {
+        params: { page, page_size, search },
+    })
 }
 
 export const createMenuCategory = async (data) => {

@@ -4,6 +4,7 @@ import { getPermissions, createPermission, updatePermission, deletePermission, g
 
 export const usePermissionStore = defineStore('permission', () => {
   const permissions = ref([]);
+  const pagination = ref({})
   const permissionGroups = ref([]);
   const loading = ref(false);
   const error = ref(null);
@@ -22,13 +23,14 @@ export const usePermissionStore = defineStore('permission', () => {
     }
   }
 
-  const fetchData = async () => {
+  const fetchData = async (page = 1, pageSize = 10, search = null) => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await getPermissions();
-      const { success, message, data } = response.data;
+      const response = await getPermissions({ page, page_size: pageSize, search: search })
+      const { success, message, data, pagination: paginationData } = response.data;
       permissions.value = data;
+      pagination.value = paginationData
       // console.log('Role Permissions:', permissions.value.role); // ['view', 'create', 'update', 'delete']
       // console.log('User Permissions:', permissions.value.user); // ['view', 'create', 'update', 'delete']
       // console.log('Permission Permissions:', permissions.value.permission); // ['view', 'create', 'update', 'delete']
@@ -53,7 +55,6 @@ export const usePermissionStore = defineStore('permission', () => {
     error.value = null;
     try {
       const response = await getPermissionGroups();
-      console.log(response)
       const { success, message, data } = response.data;
       permissionGroups.value = data;
       return data;
@@ -108,6 +109,7 @@ export const usePermissionStore = defineStore('permission', () => {
   };
   return {
     permissions,
+    pagination,
     permissionGroups,
     loading,
     error,

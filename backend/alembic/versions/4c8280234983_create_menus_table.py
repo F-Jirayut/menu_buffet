@@ -30,9 +30,9 @@ def upgrade() -> None:
         sa.Column('category_id', sa.BigInteger, sa.ForeignKey('menu_categories.id'), nullable=False),
         sa.Column('is_available', sa.Boolean, nullable=False, server_default=sa.true()),
         sa.Column('sort_order', sa.Integer(), nullable=False, server_default=sa.text('0')),
-        sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.func.now(), onupdate=sa.func.now(), nullable=False),
-        sa.Column('deleted_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('created_at', sa.TIMESTAMP(), server_default=sa.func.now(), nullable=False),
+        sa.Column('updated_at', sa.TIMESTAMP(), server_default=sa.func.now(), onupdate=sa.func.now(), nullable=False),
+        sa.Column('deleted_at', sa.TIMESTAMP(), nullable=True),
         sa.UniqueConstraint('name')
     )
 

@@ -4,6 +4,7 @@ import { getRoles, createRole, updateRole, deleteRole, getRoleById } from '@/ser
 
 export const useRoleStore = defineStore('role', () => {
   const roles = ref([]);
+  const pagination = ref({})
   const loading = ref(false);
   const error = ref(null);
 
@@ -14,7 +15,6 @@ export const useRoleStore = defineStore('role', () => {
     try {
       // สมมุติว่า getRoleById รองรับการส่ง query เช่น ?include=permissions
       const response = await getRoleById(id, options);
-      console.log('Role By ID:')
       const { success, message, data } = response.data;
       return data;
     } catch (err) {
@@ -25,13 +25,14 @@ export const useRoleStore = defineStore('role', () => {
   }
   
 
-  const fetchData = async () => {
+  const fetchData = async (page = 1, pageSize = 10, search = null) => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await getRoles();
-      const { success, message, data } = response.data;
+      const response = await getRoles({ page, page_size: pageSize, search: search });
+      const { success, message, data, pagination : paginationData } = response.data;
       roles.value = data;
+      pagination.value = paginationData
     } catch (err) {
       error.value = err.response?.data?.detail || err.message || 'Failed to fetch data';
     } finally {
@@ -83,6 +84,7 @@ export const useRoleStore = defineStore('role', () => {
   };
   return {
     roles,
+    pagination,
     loading,
     error,
     fetchDataById,

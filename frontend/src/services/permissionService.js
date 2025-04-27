@@ -2,9 +2,11 @@ import { axiosInstance } from '@/services/axiosConfig'
 
 const prefix = 'permissions'
 
-export const getPermissions = async () => {
-    return await axiosInstance.get(`/${prefix}`)
-}
+export const getPermissions = async ({ page = 1, page_size = 10, search = null }) => {
+    return await axiosInstance.get(`/permissions`, {
+      params: { page, page_size, search },
+    })
+  }
 
 export const createPermission = async (data) => {
     return await axiosInstance.post(`/${prefix}`, data)
