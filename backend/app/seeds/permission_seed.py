@@ -32,6 +32,16 @@ def run():
             {"name": "Category.Create", "description": "Can Create Categories"},
             {"name": "Category.Update", "description": "Can Update Categories"},
             {"name": "Category.Delete", "description": "Can Delete Categories"}, 
+            
+            {"name": "Table.View", "description": "Can View Tables"},
+            {"name": "Table.Create", "description": "Can Create Tables"},
+            {"name": "Table.Update", "description": "Can Update Tables"},
+            {"name": "Table.Delete", "description": "Can Delete Tables"}, 
+            
+            {"name": "Order.View", "description": "Can View Orders"},
+            {"name": "Order.Create", "description": "Can Create Orders"},
+            {"name": "Order.Update", "description": "Can Update Orders"},
+            {"name": "Order.Delete", "description": "Can Delete Orders"}, 
         ]
 
         for perm in permissions:

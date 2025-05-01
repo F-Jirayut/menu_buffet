@@ -3,9 +3,10 @@
     <div class="container-fluid">
       <div class="row mb-4">
         <div class="col-12">
-          <h1 class="text-left">Permissions Management</h1>
+          <h1 class="fw-bold">สิทธิ์การใช้งาน</h1>
         </div>
       </div>
+      <Breadcrumbs />
 
       <!-- Search & Add Button -->
       <div class="row align-items-center mb-4">
@@ -24,7 +25,7 @@
             to="/admin/permissions/edit"
             class="btn btn-primary shadow-sm"
           >
-            <i class="bi bi-plus-lg me-1"></i> Add Permissions
+            <i class="bi bi-plus-lg me-1"></i> เพิ่มสิทธิ์การใช้งาน
           </router-link>
         </div>
       </div>
@@ -40,6 +41,7 @@
             resource-type="admin/permissions"
             :can-edit="permissionSet.has('Permission.Update')"
             :can-delete="permissionSet.has('Permission.Delete')"
+            :loading="permissionsStore.loading"
             @page-changed="handlePageChange"
             @delete-item="deletePermission"
           />
@@ -63,6 +65,7 @@ import {
   closeSwal,
   showConfirm,
 } from "@/utils/swal";
+import Breadcrumbs from "@/components/Breadcrumbs.vue";
 
 const auth = useAuthStore();
 const permissionsStore = usePermissionStore();

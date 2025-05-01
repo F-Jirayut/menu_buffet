@@ -1,8 +1,8 @@
-"""add tables and buffet_sessions
+"""drop tables and buffet_sessions
 
-Revision ID: 85465642ca19
-Revises: 4c8280234983
-Create Date: 2025-04-27 18:42:58.415472
+Revision ID: 2302ffc5d3a5
+Revises: 85465642ca19
+Create Date: 2025-04-29 13:03:35.844303
 
 """
 from typing import Sequence, Union
@@ -12,14 +12,22 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '85465642ca19'
-down_revision: Union[str, None] = '4c8280234983'
+revision: str = '2302ffc5d3a5'
+down_revision: Union[str, None] = '85465642ca19'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Create "tables"
+    """Upgrade schema: drop tables and buffet_sessions."""
+    # Drop 'tables' table
+    op.drop_table('tables')
+    pass
+
+
+def downgrade() -> None:
+    """Downgrade schema: recreate tables and buffet_sessions."""
+    # Recreate 'tables' table
     op.create_table(
         'tables',
         sa.Column('id', sa.BigInteger(), primary_key=True),
@@ -32,10 +40,4 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint('id')
     )
 
-    pass
-
-
-def downgrade() -> None:
-    """Downgrade schema."""
-    op.drop_table('tables')
     pass

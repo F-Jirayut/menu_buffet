@@ -16,6 +16,8 @@ class Settings:
     AWS_BUCKET_NAME = os.getenv("AWS_BUCKET_NAME")
     AWS_REGION = os.getenv("AWS_REGION")
     
+    TABLE_PRICE= int(os.getenv("TABLE_PRICE", 599))
+    
     class Config:
         env_file = ".env"
 

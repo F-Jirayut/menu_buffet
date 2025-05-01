@@ -12,6 +12,7 @@ export default [
         beforeEnter: authMiddleware,
         meta : {
             permissions: ['Menu.View'],
+            breadcrumb:  [{ name: 'เมนู' }]
         }
     },
     {
@@ -20,7 +21,16 @@ export default [
         component: MenuEdit,
         beforeEnter: authMiddleware,
         meta : {
-            permissions: ['Menu.Create', 'Menu.Update'],
+            permissions: {
+                create: 'Menu.Create',
+                update: 'Menu.Update'
+            },
+            breadcrumb: (route) => {
+                return [
+                  { name: 'เมนู', to: '/admin/foods/menus' },
+                  { name: route.params.id ? 'ดู / แก้ไขเมนู' : 'เพิ่มเมนู' }
+                ]
+            },
         }
     },
     {
@@ -30,6 +40,7 @@ export default [
         beforeEnter: authMiddleware,
         meta : {
             permissions: ['Category.View'],
+            breadcrumb:  [{ name: 'ประเภท' }]
         }
     },
     {
@@ -41,7 +52,13 @@ export default [
             permissions: {
                 create: 'Category.Create',
                 update: 'Category.Update'
-            }
+            },
+            breadcrumb: (route) => {
+                return [
+                  { name: 'ประเภท', to: '/admin/foods/categories' },
+                  { name: route.params.id ? 'ดู / แก้ไขประเภท' : 'เพิ่มประเภท' }
+                ]
+            },
         }
     }
 ]

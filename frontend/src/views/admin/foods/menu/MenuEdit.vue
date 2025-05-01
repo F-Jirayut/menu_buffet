@@ -3,12 +3,13 @@
     <div class="container-fluid">
       <div class="row mb-4">
         <div class="col-12">
-          <h1 class="text-center">
-            {{ isEditMode ? "Edit Menu" : "Create Menu" }}
+          <h1 class="fw-bold">
+            {{ isEditMode ? "ดู / แก้ไขเมนู" : "เพิ่มเมนู" }}
           </h1>
         </div>
       </div>
-      <div class="card shadow p-4">
+      <Breadcrumbs />
+      <div class="card shadow p-4" v-if="isOnMounted">
         <div v-if="menuStore.error" class="alert alert-danger mt-3">
           {{ menuStore.error }}
         </div>
@@ -109,6 +110,7 @@
           </div>
         </form>
       </div>
+      <LoadingOverlay v-else />
     </div>
   </Layout>
 </template>
@@ -121,6 +123,8 @@ import { useRouter, useRoute } from "vue-router";
 import { showSuccess, showError, showLoading, closeSwal } from "@/utils/swal";
 import { useAuthStore } from "@/stores/authStore";
 import { getOptions } from "@/services/optionService";
+import LoadingOverlay from "@/components/LoadingOverlay.vue";
+import Breadcrumbs from "@/components/Breadcrumbs.vue";
 const auth = useAuthStore();
 const menuStore = useMenuStore();
 const router = useRouter();
@@ -128,6 +132,7 @@ const route = useRoute();
 
 const id = route.params.id;
 const isEditMode = computed(() => !!id);
+const isOnMounted = ref(false);
 
 const name = ref("");
 const description = ref("");
@@ -166,6 +171,7 @@ onMounted(async () => {
   const response = await getOptions({type : "categories"});
   const { data } = response.data;
   CategorySelectOption.value = data;
+  isOnMounted.value = true;
 });
 
 const submitForm = async () => {

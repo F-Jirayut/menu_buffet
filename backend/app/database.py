@@ -12,7 +12,7 @@ RETRY_DELAY = 3
 
 for i in range(MAX_RETRIES):
     try:
-        engine = create_engine(DATABASE_URL, echo=True)
+        engine = create_engine(DATABASE_URL, echo=False)
         with engine.connect() as connection:
             print("Database is ready!")
         break

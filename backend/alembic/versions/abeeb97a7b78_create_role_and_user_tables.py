@@ -46,6 +46,7 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('username')
     )
+    pass
     # ### end Alembic commands ###
 
 
@@ -58,3 +59,4 @@ def downgrade() -> None:
     # ### Drop Roles Table ###
     op.drop_table('roles')
     # ### end Alembic commands ###
+    pass

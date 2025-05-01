@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 import os
-from app.routes import user, role, auth, permission, menu_category, menu, option, buffet_session
+from app.routes import user, role, auth, permission, menu_category, menu, option, table
 from app.database import Base, engine
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,7 +30,7 @@ app.include_router(permission.router)
 app.include_router(menu_category.router)
 app.include_router(menu.router)
 app.include_router(option.router)
-app.include_router(buffet_session.router)
+app.include_router(table.router)
 # app.include_router(menu.router)
 # app.include_router(buffet_session.router)
 # app.include_router(order.router)

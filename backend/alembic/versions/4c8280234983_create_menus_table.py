@@ -35,8 +35,10 @@ def upgrade() -> None:
         sa.Column('deleted_at', sa.TIMESTAMP(), nullable=True),
         sa.UniqueConstraint('name')
     )
+    pass
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     op.drop_table('menus')
+    pass

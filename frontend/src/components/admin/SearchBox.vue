@@ -10,7 +10,7 @@
       :placeholder="placeholder"
       @keydown.enter="onSearch"
     />
-    <button class="btn btn-outline-primary" @click="onSearch">Search</button>
+    <button class="btn btn-outline-primary" @click="onSearch">ค้นหา</button>
   </div>
 </template>
 

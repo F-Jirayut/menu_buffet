@@ -7,6 +7,9 @@ SEEDS = [
     'app.seeds.permission_seed',
     'app.seeds.role_permission_root_seed',
     'app.seeds.menu_category_seed',
+    'app.seeds.table_seed',
+    'app.seeds.store_reservation_setting_seed',
+    'app.seeds.store_reservation_override_seed',
     ]
 
 def run_seed(seed):

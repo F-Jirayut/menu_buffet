@@ -3,9 +3,10 @@
     <div class="container-fluid">
       <div class="row mb-4">
         <div class="col-12">
-          <h1 class="text-left">Menus Management</h1>
+          <h1 class="fw-bold">อาหาร - เมนู</h1>
         </div>
       </div>
+      <Breadcrumbs />
 
       <!-- Search & Add Button -->
       <div class="row align-items-center mb-4">
@@ -24,7 +25,7 @@
             to="/admin/foods/menus/edit"
             class="btn btn-primary shadow-sm"
           >
-            <i class="bi bi-plus-lg me-1"></i> Add Menus
+            <i class="bi bi-plus-lg me-1"></i> เพิ่มเมนู
           </router-link>
         </div>
       </div>
@@ -40,6 +41,7 @@
             resource-type="admin/foods/menus"
             :can-edit="permissionSet.has('Menu.Update')"
             :can-delete="permissionSet.has('Menu.Delete')"
+            :loading="menusStore.loading"
             @page-changed="handlePageChange"
             @delete-item="deleteMenu"
           />
@@ -63,6 +65,7 @@ import {
   closeSwal,
   showConfirm,
 } from "@/utils/swal";
+import Breadcrumbs from "@/components/Breadcrumbs.vue";
 
 const auth = useAuthStore();
 const menusStore = useMenuStore();

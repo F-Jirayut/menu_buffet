@@ -3,9 +3,10 @@
     <div class="container-fluid">
       <div class="row mb-4">
         <div class="col-12">
-          <h1 class="text-left">Categories Management</h1>
+          <h1 class="fw-bold">อาหาร - ประเภท</h1>
         </div>
       </div>
+      <Breadcrumbs />
 
       <!-- Search & Add Button -->
       <div class="row align-items-center mb-4">
@@ -24,7 +25,7 @@
             to="/admin/foods/categories/edit"
             class="btn btn-primary shadow-sm"
           >
-            <i class="bi bi-plus-lg me-1"></i> Add Categories
+            <i class="bi bi-plus-lg me-1"></i> เพิ่มประเภท
           </router-link>
         </div>
       </div>
@@ -40,6 +41,7 @@
             resource-type="admin/foods/categories"
             :can-edit="permissionSet.has('Category.Update')"
             :can-delete="permissionSet.has('Category.Delete')"
+            :loading="menuCategoriesStore.loading"
             @page-changed="handlePageChange"
             @delete-item="deleteMenuCategory"
           />
@@ -63,6 +65,7 @@ import {
   closeSwal,
   showConfirm,
 } from "@/utils/swal";
+import Breadcrumbs from "@/components/Breadcrumbs.vue";
 
 const auth = useAuthStore();
 const menuCategoriesStore = useMenuCategoriestore();

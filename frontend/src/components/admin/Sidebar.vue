@@ -13,35 +13,41 @@
             <li v-if="permissionSet.has('Role.View')">
                 <router-link to="/admin/roles" class="nav-link px-0 align-middle">
                     <i class="fs-4 bi bi-person-workspace"></i>
-                    <span class="ms-1 d-none d-sm-inline">Roles</span>
+                    <span class="ms-1 d-none d-sm-inline">บทบาท</span>
                 </router-link>
             </li>
             <li v-if="permissionSet.has('Permission.View')">
                 <router-link to="/admin/permissions" class="nav-link px-0 align-middle">
                     <i class="fs-4 bi bi-key-fill"></i>
-                    <span class="ms-1 d-none d-sm-inline">Permissions</span>
+                    <span class="ms-1 d-none d-sm-inline">สิทธิ์การใช้งาน</span>
                 </router-link>
             </li>
             <li v-if="permissionSet.has('User.View')">
                 <router-link to="/admin/users" class="nav-link px-0 align-middle">
                     <i class="fs-4 bi bi-person"></i>
-                    <span class="ms-1 d-none d-sm-inline">Users</span>
+                    <span class="ms-1 d-none d-sm-inline">ผู้ใช้งาน</span>
+                </router-link>
+            </li>
+            <li v-if="permissionSet.has('Table.View')">
+                <router-link to="/admin/tables" class="nav-link px-0 align-middle">
+                    <i class="fs-4 bi bi-table"></i>
+                    <span class="ms-1 d-none d-sm-inline">โต๊ะ</span>
                 </router-link>
             </li>
             <li v-if="permissionSet.has('Menu.View') || permissionSet.has('Category.View')">
                 <a href="#foods" data-bs-toggle="collapse" class="nav-link px-0 align-middle d-flex justify-content-between align-items-center" aria-expanded="false">
                     <span>
                     <i class="fs-4 bi-card-list"></i>
-                    <span class="ms-1 d-none d-sm-inline">Foods</span>
+                    <span class="ms-1 d-none d-sm-inline">อาหาร</span>
                     </span>
                     <i class="bi bi-chevron-down collapse-toggle-icon ms-2 d-none d-sm-inline"></i>
                 </a>
                 <ul class="collapse nav ms-2" :class="{ show: isMenuActive || isCategoryActive }" id="foods" data-bs-parent="#menu">
                     <li class="w-100" v-if="permissionSet.has('Menu.View')">
-                        <router-link to="/admin/foods/menus" class="nav-link px-0"> <span class="d-none d-sm-inline">Menus</span> </router-link>
+                        <router-link to="/admin/foods/menus" class="nav-link px-0"> <span class="d-none d-sm-inline">เมนู</span> </router-link>
                     </li>
                     <li class="w-100" v-if="permissionSet.has('Category.View')">
-                        <router-link to="/admin/foods/categories" class="nav-link px-0"> <span class="d-none d-sm-inline">Categories</span> </router-link>
+                        <router-link to="/admin/foods/categories" class="nav-link px-0"> <span class="d-none d-sm-inline">ประเภท</span> </router-link>
                     </li>
                 </ul>
             </li>
@@ -57,7 +63,7 @@
                 <li><a class="dropdown-item" href="#">Settings</a></li>
                 <li><a class="dropdown-item" href="#">Profile</a></li>
                 <li><hr class="dropdown-divider"></li> -->
-                <li><a class="dropdown-item" href="#" @click.prevent="handleLogout">Logout</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="handleLogout">ออกจากระบบ</a></li>
             </ul>
         </div>
     </div>

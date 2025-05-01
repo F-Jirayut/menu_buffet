@@ -3,11 +3,12 @@
     <div class="container-fluid">
       <div class="row mb-4">
         <div class="col-12">
-          <h1 class="text-center">{{ isEditMode ? 'Edit User' : 'Create User' }}</h1>
+          <h1 class="fw-bold">{{ isEditMode ? 'ดู / แก้ไขผู้ใช้งาน' : 'เพิ่มผู้ใช้งาน' }}</h1>
         </div>
       </div>
+      <Breadcrumbs />
 
-      <div class="card shadow p-4">
+      <div class="card shadow p-4" v-if="isOnMounted">
         <div v-if="usersStore.error" class="alert alert-danger mt-3">
           {{ usersStore.error }}
         </div>
@@ -16,27 +17,24 @@
           <div class="row">
             <!-- Name -->
             <div class="mb-3 col-12 col-xl-6">
-              <label for="name" class="form-label">Name</label>
+              <label for="name" class="form-label">ชื่อ <span class="text-danger">*</span></label>
               <input
                 v-model="name"
                 type="text"
                 id="name"
                 class="form-control"
-                placeholder="Enter user name"
                 required
-                autocomplete="off"
               />
             </div>
 
             <!-- Username -->
             <div class="mb-3 col-12 col-xl-6">
-              <label for="username" class="form-label">Username</label>
+              <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
               <input
                 v-model="username"
                 type="text"
                 id="username"
                 class="form-control"
-                placeholder="Enter unique username"
                 required
                 autocomplete="off"
               />
@@ -50,7 +48,6 @@
                 id="password"
                 class="form-control"
                 :required="!isEditMode"
-                placeholder="Enter password"
               />
             </div>
 
@@ -62,20 +59,19 @@
                 id="confirmPassword"
                 class="form-control"
                 :required="!isEditMode"
-                placeholder="Re-enter password"
               />
             </div>
 
             <!-- Role -->
             <div class="mb-3 col-12 col-xl-6">
-              <label for="role" class="form-label">Role</label>
+              <label for="role" class="form-label">บทบาท <span class="text-danger">*</span></label>
               <select
                 v-model="role_id"
                 id="role"
                 class="form-select"
                 required
               >
-                <option disabled value="">-- Select Role --</option>
+                <option disabled value="">-- เลือกบทบาท --</option>
                 <option
                   v-for="role in roleSelectOption"
                   :key="role.id"
@@ -87,18 +83,18 @@
             </div>
           </div>
 
-          <div class="text-end mt-4">
-            <button
-              type="submit"
-              class="btn btn-success"
-              :disabled="usersStore.loading"
-            >
-              <span v-if="usersStore.loading">Saving...</span>
-              <span v-else>Save</span>
-            </button>
+          <div>
+            <FormActionButtons
+              :isEditMode="isEditMode"
+              :loading="usersStore.loading"
+              :id="id"
+              :deleteItem="deleteUser"
+            />
           </div>
+
         </form>
       </div>
+      <LoadingOverlay v-else />
     </div>
   </Layout>
 </template>
@@ -108,8 +104,11 @@ import { ref, onMounted, computed } from 'vue'
 import Layout from '@/components/admin/Layout.vue'
 import { useUserStore } from '@/stores/userStore'
 import { useRouter, useRoute } from 'vue-router'
-import { showSuccess, showError } from '@/utils/swal'
+import { showSuccess, showError, showConfirm, showLoading, closeSwal, showSuccessOk } from '@/utils/swal'
 import { getOptions } from '@/services/optionService'
+import FormActionButtons from '@/components/FormActionButtons.vue'
+import LoadingOverlay from '@/components/LoadingOverlay.vue'
+import Breadcrumbs from '@/components/Breadcrumbs.vue'
 
 const usersStore = useUserStore()
 const router = useRouter()
@@ -117,6 +116,7 @@ const route = useRoute()
 
 const id = route.params.id
 const isEditMode = computed(() => !!id)
+const isOnMounted = ref(false);
 
 const roleSelectOption = ref([])
 
@@ -149,6 +149,7 @@ onMounted(async () => {
   const response = await getOptions({ type : "roles"})
   const { data } = response.data
   roleSelectOption.value = data
+  isOnMounted.value = true
 })
 
 const submitForm = async () => {
@@ -180,5 +181,21 @@ const submitForm = async () => {
     showError('Error', usersStore.error)
   }
 }
+
+const deleteUser = async (id) => {
+  const confirmed = await showConfirm("คุณต้องการลบข้อมูลนี้หรือไม่?");
+  if (confirmed.isConfirmed) {
+    showLoading();
+    await usersStore.deleteData(id);
+    if (usersStore.error) {
+      closeSwal();
+      showError("ลบข้อมูลไม่สำเร็จ", usersStore.error);
+      return;
+    }
+    closeSwal();
+    showSuccessOk("ลบข้อมูลสำเร็จ");
+    router.push('/admin/users')
+  }
+};
 
 </script>

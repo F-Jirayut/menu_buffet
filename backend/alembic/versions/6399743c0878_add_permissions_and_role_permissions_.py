@@ -41,9 +41,11 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['permission_id'], ['permissions.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('role_id', 'permission_id')
     )
+    pass
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     op.drop_table('role_permissions')
     op.drop_table('permissions')
+    pass

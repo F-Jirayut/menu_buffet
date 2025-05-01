@@ -8,6 +8,7 @@ import role from './role.js'
 import permission from './permission.js'
 import users from './users.js'
 import food from './food.js'
+import table from './table.js'
 
 const routes = [
   ...home,
@@ -16,6 +17,7 @@ const routes = [
   ...permission,
   ...users,
   ...food,
+  ...table,
   // ใส่ route not found ก็ได้
   {
     path: '/:pathMatch(.*)*',

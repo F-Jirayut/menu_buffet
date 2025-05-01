@@ -10,6 +10,8 @@ export default [
         beforeEnter: authMiddleware,
         meta: {
             permissions: ['Role.View'],
+            breadcrumb:[{ name: 'บทบาท' }]
+            
         }
     },
     {
@@ -21,7 +23,13 @@ export default [
             permissions: {
                 create: 'Role.Create',
                 update: 'Role.Update'
-            }
+            },
+            breadcrumb: (route) => {
+                return [
+                  { name: 'บทบาท', to: '/admin/roles' },
+                  { name: route.params.id ? 'ดู / แก้ไขบทบาท' : 'เพิ่มบทบาท' }
+                ]
+            },
         }
     },
 ]

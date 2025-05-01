@@ -3,47 +3,48 @@
     <div class="container-fluid">
       <div class="row mb-4">
         <div class="col-12">
-          <h1 class="text-center">{{ isEditMode ? 'Edit Permission' : 'Create Permission' }}</h1>
+          <h1 class="fw-bold">{{ isEditMode ? 'ดู / แก้ไขสิทธิ์การใช้งาน' : 'เพิ่มสิทธิ์การใช้งาน' }}</h1>
         </div>
       </div>
-      <div class="card shadow p-4">
+      <Breadcrumbs />
+      <div class="card shadow p-4" v-if="isOnMounted">
         <div v-if="permissionsStore.error" class="alert alert-danger mt-3">
           {{ permissionsStore.error }}
         </div>
         <form @submit.prevent="submitForm">
           <div class="row">
             <div class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6">
-              <label for="permissionName" class="form-label">Name <span class="text-danger">*</span></label>
+              <label for="permissionName" class="form-label">ชื่อ <span class="text-danger">*</span></label>
               <input
                 v-model="name"
                 type="text"
                 id="permissionName"
                 class="form-control"
-                placeholder="Enter permission name"
                 required
-                autocomplete="off"
               />
             </div>
             <div class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6">
-              <label for="permissionName" class="form-label">Description</label>
+              <label for="permissionName" class="form-label">รายละเอียด</label>
               <textarea
                 v-model="description"
                 id="permissionDescription"
                 class="form-control"
-                placeholder="Enter permission description"
-                autocomplete="off"
               ></textarea>
             </div>
           </div>
 
-          <div class="text-end">
-            <button type="submit" class="btn btn-success" :disabled="permissionsStore.loading">
-              <span v-if="permissionsStore.loading">Saving...</span>
-              <span v-else>Save</span>
-            </button>
+          <div>
+            <FormActionButtons
+              :isEditMode="isEditMode"
+              :loading="permissionsStore.loading"
+              :id="id"
+              :deleteItem="deletePermission"
+            />
           </div>
+
         </form>
       </div>
+      <LoadingOverlay v-else />
     </div>
   </Layout>
 </template>
@@ -53,10 +54,11 @@ import { ref, onMounted, computed } from 'vue'
 import Layout from '@/components/admin/Layout.vue'
 import { usePermissionStore } from '@/stores/permissionStore'
 import { useRouter, useRoute } from 'vue-router'
-import { showSuccess, showError, showLoading, closeSwal } from '@/utils/swal'
-import { useAuthStore } from '@/stores/authStore'
+import { showSuccess, showError, showLoading, closeSwal, showConfirm, showSuccessOk } from '@/utils/swal'
+import FormActionButtons from '@/components/FormActionButtons.vue';
+import LoadingOverlay from '@/components/LoadingOverlay.vue'
+import Breadcrumbs from '@/components/Breadcrumbs.vue'
 
-const auth = useAuthStore()
 const permissionsStore = usePermissionStore()
 const router = useRouter()
 const route = useRoute()
@@ -66,6 +68,7 @@ const isEditMode = computed(() => !!id)
 
 const name = ref('')
 const description = ref('')
+const isOnMounted = ref(false);
 
 onMounted(async() => {
   if (isEditMode.value) {
@@ -84,6 +87,7 @@ onMounted(async() => {
       router.push('/admin/permissions')
     }
   }
+  isOnMounted.value = true
 })
 
 const validateName = (name) => {
@@ -118,5 +122,21 @@ const submitForm = async () => {
     return
   }
 }
+
+const deletePermission = async (id) => {
+  const confirmed = await showConfirm("คุณต้องการลบข้อมูลนี้หรือไม่?");
+  if (confirmed.isConfirmed) {
+    showLoading();
+    await permissionsStore.deleteData(id);
+    if (permissionsStore.error) {
+      closeSwal();
+      showError("ลบข้อมูลไม่สำเร็จ", permissionsStore.error);
+      return;
+    }
+    closeSwal();
+    router.push('/admin/permissions')
+    showSuccessOk("ลบข้อมูลสำเร็จ");
+  }
+};
 
 </script>

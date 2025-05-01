@@ -58,7 +58,6 @@ def role(
     db: Session = Depends(get_db)
 ):
     db_role = role_controller.get_role_by_id(db, id=role_id, include=include)
-    print(db_role)
     return BaseResponse(
         success=True,
         message="Role fetched successfully",
