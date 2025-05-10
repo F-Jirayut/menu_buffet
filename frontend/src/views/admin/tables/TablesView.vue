@@ -34,7 +34,7 @@
         <router-link
           :to="`/admin/tables/edit/${table.id}`"
           class="col-sm-6 col-md-4 col-lg-4 mb-4 col-xl-3 col-xxl-2 text-decoration-none"
-          v-for="table in tablesStore.tables"
+          v-for="table in tablesStore.items"
           :key="table.name"
         >
           <div
@@ -87,7 +87,7 @@ onMounted(async () => {
 });
 
 const fetchTables = async () => {
-  await tablesStore.fetchData(search.value);
+  await tablesStore.fetchData({ search : search.value });
 };
 
 const handleSearch = async () => {

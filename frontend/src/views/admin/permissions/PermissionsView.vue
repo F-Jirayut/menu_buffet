@@ -34,7 +34,7 @@
       <div class="row">
         <div class="col-12">
           <DataTable
-            :data="permissionsStore.permissions"
+            :data="permissionsStore.items"
             :columns="columns"
             :pagination="permissionsStore.pagination"
             :current-page="currentPage"
@@ -89,11 +89,12 @@ watch(currentPage, async () => {
 });
 
 const fetchPermissions = async () => {
-  await permissionsStore.fetchData(
-    currentPage.value,
-    pageSize.value,
-    search.value
-  );
+  await permissionsStore.fetchData({
+    page: currentPage.value,
+    per_page: pageSize.value,
+    search: search.value
+  });
+  console.log(permissionsStore.items)
 };
 
 const handleSearch = async () => {

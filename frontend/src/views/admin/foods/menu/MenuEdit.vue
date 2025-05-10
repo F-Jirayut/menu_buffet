@@ -98,16 +98,15 @@
             </div>
           </div>
 
-          <div class="text-end">
-            <button
-              type="submit"
-              class="btn btn-success"
-              :disabled="menuStore.loading"
-            >
-              <span v-if="menuStore.loading">Saving...</span>
-              <span v-else>Save</span>
-            </button>
+          <div>
+            <FormActionButtons
+              :isEditMode="isEditMode"
+              :loading="menuStore.loading"
+              :id="id"
+              :deleteItem="deleteMenu"
+            />
           </div>
+
         </form>
       </div>
       <LoadingOverlay v-else />
@@ -120,11 +119,12 @@ import { ref, onMounted, computed } from "vue";
 import Layout from "@/components/admin/Layout.vue";
 import { useMenuStore } from "@/stores/menuStore";
 import { useRouter, useRoute } from "vue-router";
-import { showSuccess, showError, showLoading, closeSwal } from "@/utils/swal";
+import { showSuccess, showError, showLoading, closeSwal, showConfirm, showSuccessOk } from "@/utils/swal";
 import { useAuthStore } from "@/stores/authStore";
 import { getOptions } from "@/services/optionService";
 import LoadingOverlay from "@/components/LoadingOverlay.vue";
 import Breadcrumbs from "@/components/Breadcrumbs.vue";
+import FormActionButtons from "@/components/FormActionButtons.vue";
 const auth = useAuthStore();
 const menuStore = useMenuStore();
 const router = useRouter();
@@ -153,7 +153,7 @@ const onFileChange = (event) => {
 
 onMounted(async () => {
   if (isEditMode.value) {
-    let menu = menuStore.menus.find((r) => r.id == id);
+    let menu = menuStore.items.find((r) => r.id == id);
     if (!menu) menu = await menuStore.fetchDataById(id);
 
     if (menu) {
@@ -168,7 +168,7 @@ onMounted(async () => {
     }
   }
 
-  const response = await getOptions({type : "categories"});
+  const response = await getOptions({ type: "categories" });
   const { data } = response.data;
   CategorySelectOption.value = data;
   isOnMounted.value = true;
@@ -177,7 +177,13 @@ onMounted(async () => {
 const submitForm = async () => {
   const formData = new FormData();
   formData.append("name", name.value);
-  formData.append("description", description.value || null);
+  if (
+    description.value !== null &&
+    description.value !== undefined &&
+    description.value !== ""
+  ) {
+    formData.append("description", description.value || null);
+  }
   if (
     sort_order.value !== null &&
     sort_order.value !== undefined &&
@@ -209,4 +215,21 @@ const submitForm = async () => {
     showError("Error", menuStore.error);
   }
 };
+
+const deleteMenu = async (id) => {
+  const confirmed = await showConfirm("คุณต้องการลบข้อมูลนี้หรือไม่?");
+  if (confirmed.isConfirmed) {
+    showLoading();
+    await menuStore.deleteData(id);
+    if (menuStore.error) {
+      closeSwal();
+      showError("ลบข้อมูลไม่สำเร็จ", menuStore.error);
+      return;
+    }
+    closeSwal();
+    router.push('/admin/foods/menus')
+    showSuccessOk("ลบข้อมูลสำเร็จ");
+  }
+};
+
 </script>

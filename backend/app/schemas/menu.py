@@ -3,7 +3,7 @@ from typing import Optional
 
 class MenuBase(BaseModel):
     name: str = Field(..., example="ข้าวผัดกะเพรา")
-    description: Optional[str] = Field(None, example="เมนูยอดฮิตของคนไทย")
+    description: Optional[str] = None
     category_id: int = Field(..., example=1)
     is_available: bool = Field(default=True)
     sort_order: Optional[int] = None

@@ -122,7 +122,7 @@ import FormActionButtons from '@/components/FormActionButtons.vue'
 
   onMounted(async() => {
     if (isEditMode.value) {
-      let table = tablesStore.tables.find(r => r.id == id)
+      let table = tablesStore.items.find(r => r.id == id)
 
       if (!table) {
         table = await tablesStore.fetchDataById(id)

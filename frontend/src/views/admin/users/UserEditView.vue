@@ -131,7 +131,7 @@ const confirmPassword = ref('')
 onMounted(async () => {
 
   if (isEditMode.value) {
-    let user = usersStore.users.find(u => u.id == id)
+    let user = usersStore.items.find(u => u.id == id)
     if (!user) {
       user = await usersStore.fetchDataById(id)
     }
