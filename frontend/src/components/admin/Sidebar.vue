@@ -6,38 +6,38 @@
         </a> -->
         <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
             <li class="nav-item">
-                <a href="#" class="nav-link align-middle px-0">
-                    <i class="fs-4 bi-speedometer2"></i> <span class="ms-1 d-none d-sm-inline">Dashboard</span>
+                <a href="#" class="nav-link px-0 d-flex align-items-center">
+                    <i class="fs-4 bi-speedometer2 me-1"></i> <span class="ms-1 d-none d-sm-inline">Dashboard</span>
                 </a>
             </li>
             <li v-if="permissionSet.has('Role.View')">
-                <router-link to="/admin/roles" class="nav-link px-0 align-middle">
-                    <i class="fs-4 bi bi-person-workspace"></i>
+                <router-link to="/admin/roles" class="nav-link px-0 d-flex align-items-center">
+                    <i class="fs-4 bi bi-person-workspace me-1"></i>
                     <span class="ms-1 d-none d-sm-inline">บทบาท</span>
                 </router-link>
             </li>
             <li v-if="permissionSet.has('Permission.View')">
-                <router-link to="/admin/permissions" class="nav-link px-0 align-middle">
-                    <i class="fs-4 bi bi-key-fill"></i>
+                <router-link to="/admin/permissions" class="nav-link px-0 d-flex align-items-center">
+                    <i class="fs-4 bi bi-key-fill me-1"></i>
                     <span class="ms-1 d-none d-sm-inline">สิทธิ์การใช้งาน</span>
                 </router-link>
             </li>
             <li v-if="permissionSet.has('User.View')">
-                <router-link to="/admin/users" class="nav-link px-0 align-middle">
-                    <i class="fs-4 bi bi-person"></i>
+                <router-link to="/admin/users" class="nav-link px-0 d-flex align-items-center">
+                    <i class="fs-4 bi bi-person me-1"></i>
                     <span class="ms-1 d-none d-sm-inline">ผู้ใช้งาน</span>
                 </router-link>
             </li>
             <li v-if="permissionSet.has('Table.View')">
-                <router-link to="/admin/tables" class="nav-link px-0 align-middle">
-                    <i class="fs-4 bi bi-table"></i>
+                <router-link to="/admin/tables" class="nav-link px-0 d-flex align-items-center">
+                    <i class="fs-4 bi bi-table me-1"></i>
                     <span class="ms-1 d-none d-sm-inline">โต๊ะ</span>
                 </router-link>
             </li>
             <li v-if="permissionSet.has('Menu.View') || permissionSet.has('Category.View')">
-                <a href="#foods" data-bs-toggle="collapse" class="nav-link px-0 align-middle d-flex justify-content-between align-items-center" aria-expanded="false">
-                    <span>
-                    <i class="fs-4 bi-card-list"></i>
+                <a href="#foods" data-bs-toggle="collapse" class="nav-link px-0 d-flex justify-content-between align-items-center" aria-expanded="false">
+                    <span class="d-flex align-items-center">
+                    <i class="fs-4 bi-card-list me-1"></i>
                     <span class="ms-1 d-none d-sm-inline">อาหาร</span>
                     </span>
                     <i class="bi bi-chevron-down collapse-toggle-icon ms-2 d-none d-sm-inline"></i>

@@ -1,4 +1,5 @@
-from sqlalchemy import Column, BigInteger, String, DateTime, Boolean, datetime, ForeignKey, Text
+from sqlalchemy import Column, BigInteger, String, DateTime, Boolean, ForeignKey, Text
+from sqlalchemy.sql import func
 from app.database import Base
 from sqlalchemy.orm import relationship
 
@@ -11,7 +12,7 @@ class OrderPaymentProof(Base):
     image_path = Column(Text, nullable=False)
     is_verified = Column(Boolean, nullable=False, default=False)
     note = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
 
     order = relationship("Order", back_populates="payment_proofs")

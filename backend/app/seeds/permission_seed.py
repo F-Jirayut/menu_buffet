@@ -41,7 +41,7 @@ def run():
             {"name": "Order.View", "description": "Can View Orders"},
             {"name": "Order.Create", "description": "Can Create Orders"},
             {"name": "Order.Update", "description": "Can Update Orders"},
-            {"name": "Order.Delete", "description": "Can Delete Orders"}, 
+            {"name": "Order.Delete", "description": "Can Delete Orders"},
         ]
 
         for perm in permissions:

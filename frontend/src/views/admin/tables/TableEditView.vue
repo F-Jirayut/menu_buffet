@@ -81,15 +81,13 @@
             </div>
           </div>
 
-          <div class="text-end">
-            <button
-              type="submit"
-              class="btn btn-success"
-              :disabled="tablesStore.loading"
-            >
-              <span v-if="tablesStore.loading">กำลังบันทึก...</span>
-              <span v-else>บันทึก</span>
-            </button>
+          <div>
+            <FormActionButtons
+              :isEditMode="isEditMode"
+              :loading="tablesStore.loading"
+              :id="id"
+              :deleteItem="deleteTable"
+            />
           </div>
         </form>
       </div>
@@ -103,9 +101,10 @@
   import Layout from '@/components/admin/Layout.vue'
   import { useTableStore } from '@/stores/tableStore'
   import { useRouter, useRoute } from 'vue-router'
-  import { showSuccess, showError, showLoading, closeSwal } from '@/utils/swal'
+  import { showSuccess, showError, showLoading, closeSwal, showSuccessOk, showConfirm } from '@/utils/swal'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
 import Breadcrumbs from '@/components/Breadcrumbs.vue'
+import FormActionButtons from '@/components/FormActionButtons.vue'
 
   const tablesStore = useTableStore()
   const router = useRouter()
@@ -116,7 +115,7 @@ import Breadcrumbs from '@/components/Breadcrumbs.vue'
   const isOnMounted = ref(false);
 
   const name = ref('')
-  const capacity = ref('')
+  const capacity = ref()
   const is_active = ref(true)
   const sort_order = ref()
   const note = ref('')
@@ -129,9 +128,11 @@ import Breadcrumbs from '@/components/Breadcrumbs.vue'
         table = await tablesStore.fetchDataById(id)
       }
 
-
       if (table) {
         name.value = table.name
+        capacity.value = table.capacity
+        sort_order.value = table.sort_order
+        is_active.value = table.is_active
         note.value = table.note
       } else {
         showError('Error', 'Table not found')
@@ -151,8 +152,15 @@ import Breadcrumbs from '@/components/Breadcrumbs.vue'
     name: name.value,
     capacity: capacity.value,
     is_active: is_active.value,
-    sort_order: sort_order.value,
     note: note.value,
+  }
+
+  if (
+    sort_order.value !== null &&
+    sort_order.value !== undefined &&
+    sort_order.value !== ""
+  ) {
+    payload['sort_order'] = sort_order.value
   }
 
   showLoading()
@@ -172,4 +180,21 @@ import Breadcrumbs from '@/components/Breadcrumbs.vue'
     return
   }
 }
+
+const deleteTable = async (id) => {
+  const confirmed = await showConfirm("คุณต้องการลบข้อมูลนี้หรือไม่?");
+  if (confirmed.isConfirmed) {
+    showLoading();
+    await tablesStore.deleteData(id);
+    if (tablesStore.error) {
+      closeSwal();
+      showError("ลบข้อมูลไม่สำเร็จ", tablesStore.error);
+      return;
+    }
+    closeSwal();
+    showSuccessOk("ลบข้อมูลสำเร็จ");
+    router.push("/admin/tables");
+  }
+};
+
 </script>

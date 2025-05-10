@@ -8,3 +8,6 @@ from .store_reservation_setting import StoreReservationSetting
 from .store_reservation_override import StoreReservationOverride
 # from .buffet_session import BuffetSession
 from .table import Table
+from .order import Order
+from .customer import Customer
+from .order_payment_proof import OrderPaymentProof

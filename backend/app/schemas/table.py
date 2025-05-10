@@ -12,12 +12,8 @@ class TableBase(BaseModel):
 class TableCreate(TableBase):
     pass
 
-class TableUpdate(BaseModel):
-    name: Optional[str]
-    capacity: Optional[int]
-    note: Optional[str]
-    is_active: Optional[bool]
-    sort_order: Optional[int] = None
+class TableUpdate(TableBase):
+    pass
 
 class TableResponse(TableBase):
-    pass
+    id: int

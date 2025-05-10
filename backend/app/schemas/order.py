@@ -23,6 +23,8 @@ class OrderCreate(OrderBase):
 class OrderUpdate(OrderBase):
     pass
 
+class OrderResponse(OrderBase):
+    pass
 
 class OrderInDB(OrderBase):
     id: int

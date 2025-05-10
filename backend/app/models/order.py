@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, String, DateTime, Integer, Boolean, datetime, ForeignKey, Enum, Numeric, Text
+from sqlalchemy import Column, BigInteger, String, DateTime, Integer, Boolean, ForeignKey, Enum, Numeric, Text
 from sqlalchemy.sql import func
 from app.database import Base
 from sqlalchemy.orm import relationship
@@ -16,8 +16,8 @@ class Order(Base):
     deposit_amount = Column(Numeric(10, 2), nullable=True)
     total_price = Column(Numeric(10, 2), nullable=True)
     note = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
 
     customer = relationship("Customer", back_populates="orders")
     payment_proofs = relationship("OrderPaymentProof", back_populates="order")
