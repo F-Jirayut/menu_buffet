@@ -24,7 +24,7 @@ WORKDIR /app
 COPY --from=builder /app /app
 
 # สร้างโฟลเดอร์ storage/uploads/menus
-RUN mkdir -p /app/storage/uploads/menus
+RUN mkdir -p storage/uploads/menus
 
 # ติดตั้ง dependencies
 RUN pip install --no-cache-dir -r requirements.txt
