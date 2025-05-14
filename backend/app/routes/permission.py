@@ -42,7 +42,7 @@ router = APIRouter(
     ]
 )
 
-@router.post("/", response_model=BaseResponse[Permission])
+@router.post("/", response_model=BaseResponse[Permission], response_model_exclude_none=True)
 def create_permission(permission: PermissionCreate, db: Session = Depends(get_db)):
     db_permission = permission_controller.create_permission(db=db, permission=permission)
     return BaseResponse(
@@ -51,7 +51,7 @@ def create_permission(permission: PermissionCreate, db: Session = Depends(get_db
         data=db_permission
     )
 
-@router.get("/{permission_id}", response_model=BaseResponse[Permission])
+@router.get("/{permission_id}", response_model=BaseResponse[Permission], response_model_exclude_none=True)
 def permission(permission_id: int, db: Session = Depends(get_db)):
     db_permission = permission_controller.get_permission_by_id(db, id=permission_id)
     return BaseResponse(
@@ -60,7 +60,7 @@ def permission(permission_id: int, db: Session = Depends(get_db)):
         data=db_permission
     )
 
-@router.get("/", response_model=BaseResponse[List[Permission]])
+@router.get("/", response_model=BaseResponse[List[Permission]], response_model_exclude_none=True)
 def get_all_permissions(
     db: Session = Depends(get_db),
     page: int = Query(1, ge=1),
@@ -98,7 +98,7 @@ def get_all_permissions(
         )
     )
 
-@router.get("/groups/list", response_model=BaseResponse[GroupedPermissions])
+@router.get("/groups/list", response_model=BaseResponse[GroupedPermissions], response_model_exclude_none=True)
 def get_grouped_permissions(db: Session = Depends(get_db)):
     db_permissions = permission_controller.get_permissions(db)
     grouped_permissions = permission_controller.get_grouped_permissions(db_permissions)
@@ -109,7 +109,7 @@ def get_grouped_permissions(db: Session = Depends(get_db)):
         data=grouped_permissions
     )
 
-@router.put("/{permission_id}", response_model=BaseResponse[Permission])
+@router.put("/{permission_id}", response_model=BaseResponse[Permission], response_model_exclude_none=True)
 def update_permission(permission_id: int, permission: PermissionCreate, db: Session = Depends(get_db)):
     db_permission = permission_controller.update_permission(db=db, permission_id=permission_id, permission=permission)
     return BaseResponse(
@@ -118,7 +118,7 @@ def update_permission(permission_id: int, permission: PermissionCreate, db: Sess
         data=db_permission
     )
 
-@router.delete("/{permission_id}", response_model=BaseResponse)
+@router.delete("/{permission_id}", response_model=BaseResponse, response_model_exclude_none=True)
 def delete_permission(permission_id: int, db: Session = Depends(get_db)):
     permission_controller.delete_permission(db=db, permission_id=permission_id)
     return BaseResponse(

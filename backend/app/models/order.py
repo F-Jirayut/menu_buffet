@@ -12,10 +12,11 @@ class Order(Base):
     reserved_at = Column(DateTime, nullable=True)
     started_at = Column(DateTime, nullable=False)
     ended_at = Column(DateTime, nullable=False)
-    status = Column(Enum('padding', 'reserved', 'active', 'completed', 'cancelled', name='order_status'), nullable=False)
+    status = Column(Enum('pending', 'reserved', 'active', 'completed', 'cancelled', name='order_status'), nullable=False)
     deposit_amount = Column(Numeric(10, 2), nullable=True)
     total_price = Column(Numeric(10, 2), nullable=True)
     note = Column(Text, nullable=True)
+    email_sent = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
 

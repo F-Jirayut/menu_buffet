@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime
 
@@ -9,6 +9,14 @@ class OrderPaymentProofBase(BaseModel):
     image_path: str
     is_verified: Optional[bool] = False
     note: Optional[str] = None
+    
+    model_config = ConfigDict(
+        extra='ignore',
+        populate_by_name=True,
+        str_strip_whitespace=True,
+        from_attributes=True,
+        exclude_none=True
+    )
 
 
 class OrderPaymentProofCreate(OrderPaymentProofBase):

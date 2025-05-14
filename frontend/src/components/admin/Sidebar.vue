@@ -24,7 +24,7 @@
             </li>
             <li v-if="permissionSet.has('User.View')">
                 <router-link to="/admin/users" class="nav-link px-0 d-flex align-items-center">
-                    <i class="fs-4 bi bi-person me-1"></i>
+                    <i class="fs-4 bi bi-person-vcard me-1"></i>
                     <span class="ms-1 d-none d-sm-inline">ผู้ใช้งาน</span>
                 </router-link>
             </li>
@@ -50,6 +50,18 @@
                         <router-link to="/admin/foods/categories" class="nav-link px-0"> <span class="d-none d-sm-inline">ประเภท</span> </router-link>
                     </li>
                 </ul>
+            </li>
+            <li v-if="permissionSet.has('Order.View')">
+                <router-link to="/admin/orders" class="nav-link px-0 d-flex align-items-center">
+                    <i class="fs-4 bi bi-receipt me-1"></i>
+                    <span class="ms-1 d-none d-sm-inline">คำสั่งซื้อ</span>
+                </router-link>
+            </li>
+            <li v-if="permissionSet.has('Customer.View')">
+                <router-link to="/admin/customers" class="nav-link px-0 d-flex align-items-center">
+                    <i class="fs-4 bi bi-person me-1"></i>
+                    <span class="ms-1 d-none d-sm-inline">ลูกค้า</span>
+                </router-link>
             </li>
         </ul>
         <hr>
@@ -94,11 +106,6 @@ const isMenuActive = computed(() => {
 const isCategoryActive = computed(() => {
   return route.path.startsWith('/admin/foods/categories')
 })
-
-const isFoodsGroupActive = computed(() => {
-  return isMenuActive.value || isCategoryActive.value
-})
-
 </script>
 
 <style scoped>

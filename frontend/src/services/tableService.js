@@ -2,7 +2,7 @@ import { axiosInstance } from '@/services/axiosConfig'
 
 const prefix = 'tables'
 
-export const getTables = async ({ search = null }) => {
+export const getTables = async ({ page = 1, page_size = 10, search = null }) => {
     return await axiosInstance.get(`/${prefix}`, {
         params: { search },
     })

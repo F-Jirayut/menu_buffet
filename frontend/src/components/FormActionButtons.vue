@@ -7,13 +7,11 @@
       v-if="isEditMode"
       @click="handleDelete"
     >
-      <span v-if="loading">กำลังลบ...</span>
-      <span v-else>ลบ</span>
+      <span>ลบ</span>
     </button>
 
     <button type="submit" class="btn btn-success px-4 py-2" :disabled="loading">
-      <span v-if="loading">กำลังบันทึก...</span>
-      <span v-else>บันทึก</span>
+      <span>บันทึก</span>
     </button>
   </div>
 </template>

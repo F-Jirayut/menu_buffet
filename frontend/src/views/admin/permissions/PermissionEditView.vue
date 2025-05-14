@@ -72,7 +72,7 @@ const isOnMounted = ref(false);
 
 onMounted(async() => {
   if (isEditMode.value) {
-    let permission = permissionsStore.permissions.find(r => r.id == id)
+    let permission = permissionsStore.items.find(r => r.id == id)
 
     if (!permission) {
       permission = await permissionsStore.fetchDataById(id)

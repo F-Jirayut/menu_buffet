@@ -33,7 +33,7 @@
       <div class="row">
         <div class="col-12">
           <DataTable
-            :data="rolesStore.roles"
+            :data="rolesStore.items"
             :columns="columns"
             :pagination="rolesStore.pagination"
             :current-page="currentPage"
@@ -76,7 +76,7 @@ const pageSize = ref(10);
 
 const columns = [
   { label: "ID", key: "id" },
-  { label: "Name", key: "name" },
+  { label: "ชื่อ", key: "name" },
 ];
 
 onMounted(async () => {
@@ -88,11 +88,11 @@ watch(currentPage, async () => {
 });
 
 const fetchRoles = async () => {
-  await rolesStore.fetchData(
-    currentPage.value,
-    pageSize.value,
-    search.value
-  );
+  await rolesStore.fetchData({
+    page: currentPage.value,
+    per_page: pageSize.value,
+    search: search.value
+  });
 };
 
 const handleSearch = async () => {

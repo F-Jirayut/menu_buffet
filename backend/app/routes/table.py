@@ -39,7 +39,7 @@ router = APIRouter(
     ]
 )
 
-@router.get("/", response_model=BaseResponse[List[TableResponse]])
+@router.get("/", response_model=BaseResponse[List[TableResponse]], response_model_exclude_none=True)
 def get_tables(db: Session = Depends(get_db), search: Optional[str] = Query(None)):
     
     db_table = table_controller.get_tables(db, search)
@@ -49,7 +49,7 @@ def get_tables(db: Session = Depends(get_db), search: Optional[str] = Query(None
         data=db_table
     )
     
-@router.get("/{table_id}", response_model=BaseResponse[TableResponse])
+@router.get("/{table_id}", response_model=BaseResponse[TableResponse], response_model_exclude_none=True)
 def table(
     table_id: int,
     db: Session = Depends(get_db)
@@ -61,7 +61,7 @@ def table(
         data=db_table
     )
     
-@router.post("/", response_model=BaseResponse[TableResponse])
+@router.post("/", response_model=BaseResponse[TableResponse], response_model_exclude_none=True)
 def create_table(table: TableCreate, db: Session = Depends(get_db)):
     db_table = table_controller.create_table(db=db, table=table)
     return BaseResponse(
@@ -70,7 +70,7 @@ def create_table(table: TableCreate, db: Session = Depends(get_db)):
         data=db_table
     )
     
-@router.put("/{table_id}", response_model=BaseResponse[TableResponse])
+@router.put("/{table_id}", response_model=BaseResponse[TableResponse], response_model_exclude_none=True)
 def update_table(table_id: int, table: TableUpdate, db: Session = Depends(get_db)):
     db_table = table_controller.update_table(db=db, table_id=table_id, table=table)
     return BaseResponse(
@@ -79,7 +79,7 @@ def update_table(table_id: int, table: TableUpdate, db: Session = Depends(get_db
         data=db_table
     )
 
-@router.delete("/{table_id}", response_model=BaseResponse)
+@router.delete("/{table_id}", response_model=BaseResponse, response_model_exclude_none=True)
 def delete_table(table_id: int, db: Session = Depends(get_db)):
     table_controller.delete_table(db=db, table_id=table_id)
     return BaseResponse(

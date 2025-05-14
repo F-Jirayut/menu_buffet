@@ -20,9 +20,9 @@ router = APIRouter(
     dependencies=[Depends(get_current_user)]
 )
 
-@router.get("/", response_model=BaseResponse[List[OptionResponse]])
+@router.get("/", response_model=BaseResponse[List[OptionResponse]], response_model_exclude_none=True)
 def get_options(
-    type: Literal["categories", "roles"] = Query(..., description="Option type to fetch"),
+    type: Literal["categories", "roles", "tables", "customers"] = Query(..., description="Option type to fetch"),
     db: Session = Depends(get_db),
 ):
     options = option_controller.get_options(type, db)
@@ -32,7 +32,7 @@ def get_options(
         data=options
     )
 
-@router.get("/store/settings", response_model=BaseResponse[List[StoreReservationSettingBase]])
+@router.get("/store/settings", response_model=BaseResponse[List[StoreReservationSettingBase]], response_model_exclude_none=True)
 def get_option_store_settings(db: Session = Depends(get_db)):
     db_store_settings = option_controller.get_store_settings(db)
     # store_settings = [StoreReservationSettingBase.model_validate(setting) for setting in db_store_settings]
@@ -45,7 +45,7 @@ def get_option_store_settings(db: Session = Depends(get_db)):
         data=db_store_settings
     )
     
-@router.get("/store/overrides", response_model=BaseResponse[List[StoreReservationOverrideBase]])
+@router.get("/store/overrides", response_model=BaseResponse[List[StoreReservationOverrideBase]], response_model_exclude_none=True)
 def get_option_store_overrides(
     start_date: Optional[date] = Query(None),
     end_date: Optional[date] = Query(None),

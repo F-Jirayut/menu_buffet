@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date, time, datetime
 from typing import Optional
 
@@ -12,9 +12,13 @@ class StoreReservationOverrideBase(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = ConfigDict(
+        extra='ignore',
+        populate_by_name=True,
+        str_strip_whitespace=True,
+        from_attributes=True,
+        exclude_none=True
+    )
 
 class StoreReservationOverrideCreate(BaseModel):
     date: date

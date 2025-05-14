@@ -62,16 +62,15 @@
             </div>
           </div>
 
-          <div class="text-end">
-            <button
-              type="submit"
-              class="btn btn-success"
-              :disabled="menuCategoriesStore.loading"
-            >
-              <span v-if="menuCategoriesStore.loading">Saving...</span>
-              <span v-else>Save</span>
-            </button>
+          <div>
+            <FormActionButtons
+              :isEditMode="isEditMode"
+              :loading="menuCategoriesStore.loading"
+              :id="id"
+              :deleteItem="deleteMenuCategory"
+            />
           </div>
+
         </form>
       </div>
       <LoadingOverlay v-else />
@@ -82,15 +81,16 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import Layout from "@/components/admin/Layout.vue";
-import { useMenuCategoriestore } from "@/stores/menuCategoryStore";
+import { useMenuCategoryStore } from "@/stores/menuCategoryStore";
 import { useRouter, useRoute } from "vue-router";
-import { showSuccess, showError, showLoading, closeSwal } from "@/utils/swal";
+import { showSuccess, showError, showLoading, closeSwal, showConfirm, showSuccessOk } from "@/utils/swal";
 import { useAuthStore } from "@/stores/authStore";
 import LoadingOverlay from "@/components/LoadingOverlay.vue";
 import Breadcrumbs from "@/components/Breadcrumbs.vue";
+import FormActionButtons from "@/components/FormActionButtons.vue";
 
 const auth = useAuthStore();
-const menuCategoriesStore = useMenuCategoriestore();
+const menuCategoriesStore = useMenuCategoryStore();
 const router = useRouter();
 const route = useRoute();
 
@@ -104,7 +104,7 @@ const sort_order = ref();
 
 onMounted(async () => {
   if (isEditMode.value) {
-    let menu_category = menuCategoriesStore.menuCategories.find(
+    let menu_category = menuCategoriesStore.items.find(
       (r) => r.id == id
     );
 
@@ -148,6 +148,22 @@ const submitForm = async () => {
     closeSwal();
     showError("Error", menuCategoriesStore.error);
     return;
+  }
+};
+
+const deleteMenuCategory = async (id) => {
+  const confirmed = await showConfirm("คุณต้องการลบข้อมูลนี้หรือไม่?");
+  if (confirmed.isConfirmed) {
+    showLoading();
+    await menuCategoriesStore.deleteData(id);
+    if (menuCategoriesStore.error) {
+      closeSwal();
+      showError("ลบข้อมูลไม่สำเร็จ", menuCategoriesStore.error);
+      return;
+    }
+    closeSwal();
+    router.push('/admin/foods/categories')
+    showSuccessOk("ลบข้อมูลสำเร็จ");
   }
 };
 </script>

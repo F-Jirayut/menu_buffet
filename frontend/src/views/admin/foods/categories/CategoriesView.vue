@@ -34,7 +34,7 @@
       <div class="row">
         <div class="col-12">
           <DataTable
-            :data="menuCategoriesStore.menuCategories"
+            :data="menuCategoriesStore.items"
             :columns="columns"
             :pagination="menuCategoriesStore.pagination"
             :current-page="currentPage"
@@ -56,7 +56,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import Layout from "@/components/admin/Layout.vue";
 import DataTable from "@/components/admin/DataTable.vue";
 import SearchBox from "@/components/admin/SearchBox.vue";
-import { useMenuCategoriestore } from "@/stores/menuCategoryStore";
+import { useMenuCategoryStore } from "@/stores/menuCategoryStore";
 import { useAuthStore } from "@/stores/authStore";
 import {
   showSuccessOk,
@@ -68,7 +68,7 @@ import {
 import Breadcrumbs from "@/components/Breadcrumbs.vue";
 
 const auth = useAuthStore();
-const menuCategoriesStore = useMenuCategoriestore();
+const menuCategoriesStore = useMenuCategoryStore();
 const permissionSet = computed(() => new Set(auth.user?.permissions));
 
 const search = ref("");
@@ -89,11 +89,11 @@ watch(currentPage, async () => {
 });
 
 const fetchMenuCategories = async () => {
-  await menuCategoriesStore.fetchData(
-    currentPage.value,
-    pageSize.value,
-    search.value
-  );
+  await menuCategoriesStore.fetchData({
+    page: currentPage.value,
+    per_page: pageSize.value,
+    search: search.value
+  });
 };
 
 const handleSearch = async () => {

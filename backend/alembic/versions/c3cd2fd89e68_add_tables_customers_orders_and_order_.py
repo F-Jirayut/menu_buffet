@@ -26,10 +26,11 @@ def upgrade():
         sa.Column('name', sa.String(length=255), nullable=False),
         sa.Column('email', sa.String(length=255), nullable=True),
         sa.Column('phone', sa.String(length=50), nullable=False),
-        sa.Column('email_sent', sa.Boolean, nullable=False, server_default=sa.text('false')),
         sa.Column('created_at', sa.TIMESTAMP(), nullable=False, server_default=sa.func.now()),
         sa.Column('updated_at', sa.TIMESTAMP(), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()),
         sa.Column('deleted_at', sa.TIMESTAMP(), nullable=True),
+        sa.UniqueConstraint('email'),
+        sa.UniqueConstraint('phone')
     )
 
     # orders table
@@ -41,10 +42,11 @@ def upgrade():
         sa.Column('reserved_at', sa.DateTime(), nullable=True),
         sa.Column('started_at', sa.DateTime(), nullable=False),
         sa.Column('ended_at', sa.DateTime(), nullable=False),
-        sa.Column('status', sa.Enum('padding', 'reserved', 'active', 'completed', 'cancelled', name='order_status'), nullable=False),
+        sa.Column('status', sa.Enum('pending', 'reserved', 'active', 'completed', 'cancelled', name='order_status'), nullable=False),
         sa.Column('deposit_amount', sa.Numeric(10, 2), nullable=True),
         sa.Column('total_price', sa.Numeric(10, 2), nullable=True),
         sa.Column('note', sa.Text(), nullable=True),
+        sa.Column('email_sent', sa.Boolean, nullable=False, server_default=sa.text('false')),
         sa.Column('created_at', sa.TIMESTAMP(), nullable=False, server_default=sa.func.now()),
         sa.Column('updated_at', sa.TIMESTAMP(), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()),
 

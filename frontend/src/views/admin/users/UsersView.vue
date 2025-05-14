@@ -35,7 +35,7 @@
       <div class="row">
         <div class="col-12">
           <DataTable
-            :data="usersStore.users"
+            :data="usersStore.items"
             :columns="columns"
             :pagination="usersStore.pagination"
             :current-page="currentPage"
@@ -78,7 +78,7 @@ const pageSize = ref(10);
 
 const columns = [
   { label: "ID", key: "id" },
-  { label: "Name", key: "name" },
+  { label: "ชื่อ", key: "name" },
 ];
 
 onMounted(async () => {
@@ -90,11 +90,11 @@ watch(currentPage, async () => {
 });
 
 const fetchUsers = async () => {
-  await usersStore.fetchData(
-    currentPage.value,
-    pageSize.value,
-    search.value
-  );
+  await usersStore.fetchData({
+    page: currentPage.value,
+    per_page: pageSize.value,
+    search: search.value
+  });
 };
 
 const handleSearch = async () => {

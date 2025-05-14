@@ -41,7 +41,7 @@ router = APIRouter(
     ]
 )
 
-@router.post("/", response_model=BaseResponse[MenuCategory])
+@router.post("/", response_model=BaseResponse[MenuCategory], response_model_exclude_none=True)
 def create_menu_category(menu_category: MenuCategoryCreate, db: Session = Depends(get_db)):
     db_menu_category = menu_category_controller.create_menu_category(db=db, menu_category=menu_category)
     return BaseResponse(
@@ -50,7 +50,7 @@ def create_menu_category(menu_category: MenuCategoryCreate, db: Session = Depend
         data=db_menu_category
     )
 
-@router.get("/{menu_category_id}", response_model=BaseResponse[MenuCategory])
+@router.get("/{menu_category_id}", response_model=BaseResponse[MenuCategory], response_model_exclude_none=True)
 def menu_category(menu_category_id: int, db: Session = Depends(get_db)):
     db_menu_category =  menu_category_controller.get_menu_category_by_id(db, id=menu_category_id)
     return BaseResponse(
@@ -59,7 +59,7 @@ def menu_category(menu_category_id: int, db: Session = Depends(get_db)):
         data=db_menu_category
     )
 
-@router.get("/", response_model=BaseResponse[List[MenuCategory]])
+@router.get("/", response_model=BaseResponse[List[MenuCategory]], response_model_exclude_none=True)
 def get_all_menu_categories(
     db: Session = Depends(get_db),
     page: int = Query(1, ge=1),
@@ -101,7 +101,7 @@ def get_all_menu_categories(
         )
     )
 
-@router.put("/{menu_category_id}", response_model=BaseResponse[MenuCategory])
+@router.put("/{menu_category_id}", response_model=BaseResponse[MenuCategory], response_model_exclude_none=True)
 def update_menu_category(menu_category_id: int, menu_category: MenuCategoryUpdate, db: Session = Depends(get_db)):
     db_menu_category = menu_category_controller.update_menu_category(db=db, menu_category_id=menu_category_id, menu_category=menu_category)
     return BaseResponse(
@@ -110,7 +110,7 @@ def update_menu_category(menu_category_id: int, menu_category: MenuCategoryUpdat
         data=db_menu_category
     )
 
-@router.delete("/{menu_category_id}", response_model=BaseResponse)
+@router.delete("/{menu_category_id}", response_model=BaseResponse, response_model_exclude_none=True)
 def delete_menu_category(menu_category_id: int, db: Session = Depends(get_db)):
     menu_category_controller.delete_menu_category(db=db, menu_category_id=menu_category_id)
     return BaseResponse(

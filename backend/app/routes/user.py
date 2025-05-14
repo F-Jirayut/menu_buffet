@@ -41,7 +41,7 @@ router = APIRouter(
     ]
 )
 
-@router.post("/", response_model=BaseResponse[User])
+@router.post("/", response_model=BaseResponse[User], response_model_exclude_none=True)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = user_controller.create_user(db=db, user=user)
     return BaseResponse(
@@ -50,7 +50,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         data=db_user
     )
 
-@router.get("/{user_id}", response_model=BaseResponse[User])
+@router.get("/{user_id}", response_model=BaseResponse[User], response_model_exclude_none=True)
 def user(user_id: int, db: Session = Depends(get_db)):
     db_user =  user_controller.get_user_by_id(db, id=user_id)
     return BaseResponse(
@@ -59,7 +59,7 @@ def user(user_id: int, db: Session = Depends(get_db)):
         data=db_user
     )
 
-@router.get("/", response_model=BaseResponse[List[User]])
+@router.get("/", response_model=BaseResponse[List[User]], response_model_exclude_none=True)
 def get_all_users(
     db: Session = Depends(get_db),
     page: int = Query(1, ge=1),
@@ -97,7 +97,7 @@ def get_all_users(
         )
     )
 
-@router.put("/{user_id}", response_model=BaseResponse[User])
+@router.put("/{user_id}", response_model=BaseResponse[User], response_model_exclude_none=True)
 def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
     db_user = user_controller.update_user(db=db, user_id=user_id, user=user)
     return BaseResponse(
@@ -106,7 +106,7 @@ def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
         data=db_user
     )
 
-@router.delete("/{user_id}", response_model=BaseResponse)
+@router.delete("/{user_id}", response_model=BaseResponse, response_model_exclude_none=True)
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     user_controller.delete_user(db=db, user_id=user_id)
     return BaseResponse(

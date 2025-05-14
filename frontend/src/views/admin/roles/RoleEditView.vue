@@ -17,7 +17,7 @@
         <form @submit.prevent="submitForm">
           <div class="row mb-4">
             <div class="col-12 col-md-6">
-              <label for="roleName" class="form-label fw-semibold"
+              <label for="roleName" class="form-label"
                 >ชื่อ <span class="text-danger">*</span></label
               >
               <input

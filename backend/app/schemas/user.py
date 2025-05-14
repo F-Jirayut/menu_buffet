@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional, List
 from app.schemas.role import Role
@@ -6,6 +6,14 @@ from app.schemas.role import Role
 class UserBase(BaseModel):
     name: str
     username: str
+    
+    model_config = ConfigDict(
+        extra='ignore',
+        populate_by_name=True,
+        str_strip_whitespace=True,
+        from_attributes=True,
+        exclude_none=True
+    )
 
 class UserCreate(UserBase):
     password: Optional[str] = None
