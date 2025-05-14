@@ -17,7 +17,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-menus_dir = os.path.join(os.getcwd(), "storage", "uploads", "menus")
+# ✅ ใช้ __file__ เพื่อให้แน่ใจว่า path ถูกต้องทั้งใน local และ Docker
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+menus_dir = os.path.join(BASE_DIR, "..", "storage", "uploads", "menus")
+
+# ✅ ตรวจสอบว่า directory มีอยู่จริง ถ้าไม่มีให้สร้างเลย
+if not os.path.exists(menus_dir):
+    os.makedirs(menus_dir)
+
 app.mount("/storage/uploads/menus", StaticFiles(directory=menus_dir), name="menus")
 
 Base.metadata.create_all(bind=engine)
@@ -33,7 +40,3 @@ app.include_router(option.router, prefix="/api")
 app.include_router(table.router, prefix="/api")
 app.include_router(order.router, prefix="/api")
 app.include_router(customer.router, prefix="/api")
-
-# app.include_router(menu.router)
-# app.include_router(buffet_session.router)
-# app.include_router(menu_category.router)
