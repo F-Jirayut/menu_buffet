@@ -42,7 +42,7 @@ router = APIRouter(
     ]
 )
 
-@router.post("/", response_model=BaseResponse[Role])
+@router.post("/", response_model=BaseResponse[Role], response_model_exclude_none=True)
 def create_role(role: RoleCreate, db: Session = Depends(get_db)):
     db_role = role_controller.create_role(db=db, role=role)
     return BaseResponse(
@@ -51,7 +51,7 @@ def create_role(role: RoleCreate, db: Session = Depends(get_db)):
         data=db_role
     )
 
-@router.get("/{role_id}", response_model=BaseResponse[Role])
+@router.get("/{role_id}", response_model=BaseResponse[Role], response_model_exclude_none=True)
 def role(
     role_id: int,
     include: Optional[str] = Query(None),  # รับ include จาก query
@@ -64,7 +64,7 @@ def role(
         data=db_role
     )
 
-@router.get("/", response_model=BaseResponse[List[Role]])
+@router.get("/", response_model=BaseResponse[List[Role]], response_model_exclude_none=True)
 def get_all_roles(
     db: Session = Depends(get_db),
     page: int = Query(1, ge=1),
@@ -102,7 +102,7 @@ def get_all_roles(
         )
     )
 
-@router.put("/{role_id}", response_model=BaseResponse[Role])
+@router.put("/{role_id}", response_model=BaseResponse[Role], response_model_exclude_none=True)
 def update_role(role_id: int, role: RoleCreate, db: Session = Depends(get_db)):
     db_role = role_controller.update_role(db=db, role_id=role_id, role=role)
     return BaseResponse(
@@ -111,7 +111,7 @@ def update_role(role_id: int, role: RoleCreate, db: Session = Depends(get_db)):
         data=db_role
     )
 
-@router.delete("/{role_id}", response_model=BaseResponse)
+@router.delete("/{role_id}", response_model=BaseResponse, response_model_exclude_none=True)
 def delete_role(role_id: int, db: Session = Depends(get_db)):
     role_controller.delete_role(db=db, role_id=role_id)
     return BaseResponse(

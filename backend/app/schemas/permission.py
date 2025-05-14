@@ -1,10 +1,18 @@
-from pydantic import BaseModel, RootModel, validator
+from pydantic import BaseModel, RootModel, validator, ConfigDict
 from typing import List, Optional, Dict
 import re
 
 class PermissionBase(BaseModel):
     name: str
     description: Optional[str] = None
+    
+    model_config = ConfigDict(
+        extra='ignore',
+        populate_by_name=True,
+        str_strip_whitespace=True,
+        from_attributes=True,
+        exclude_none=True
+    )
 
 
 class PermissionCreate(PermissionBase):

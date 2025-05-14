@@ -12,7 +12,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 db_instance = Database()
 get_db = db_instance.get_db
 
-@router.post("/login", response_model=BaseResponse)
+@router.post("/login", response_model=BaseResponse, response_model_exclude_none=True)
 def login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = user_controller.get_user_by_username(db, user.username)
     if db_user is None or not verify_password(user.password, db_user.password):
@@ -31,7 +31,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         data={"access_token": access_token, "token_type": "bearer"}
     )
 
-@router.get("/profile", response_model=BaseResponse[UserProfile])
+@router.get("/profile", response_model=BaseResponse[UserProfile], response_model_exclude_none=True)
 def get_profile(payload = Depends(get_current_user), db: Session = Depends(get_db)):
     db_user = user_controller.get_user_by_id(db, payload.get("id"))
     user_profile = UserProfile(

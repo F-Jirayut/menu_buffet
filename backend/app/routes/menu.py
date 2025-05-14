@@ -41,7 +41,7 @@ router = APIRouter(
     ]
 )
 
-@router.post("/", response_model=BaseResponse[MenuResponse])
+@router.post("/", response_model=BaseResponse[MenuResponse], response_model_exclude_none=True)
 def create_menu(
     name: str = Form(...),
     description: str = Form(None),
@@ -71,7 +71,7 @@ def create_menu(
         data=db_menu
     )
 
-@router.get("/", response_model=BaseResponse[List[MenuResponse]])
+@router.get("/", response_model=BaseResponse[List[MenuResponse]], response_model_exclude_none=True)
 def get_all_menus(
     db: Session = Depends(get_db),
     page: int = Query(1, ge=1),
@@ -113,7 +113,7 @@ def get_all_menus(
         )
     )
 
-@router.get('/{menu_id}', response_model=BaseResponse[MenuResponse])
+@router.get('/{menu_id}', response_model=BaseResponse[MenuResponse], response_model_exclude_none=True)
 def get_menu_by_id(menu_id: int, db: Session = Depends(get_db),  request: Request = None):
     db_menu = menu_controller.get_menu_by_id(
         db=db,
@@ -129,7 +129,7 @@ def get_menu_by_id(menu_id: int, db: Session = Depends(get_db),  request: Reques
         data=db_menu
     )
 
-@router.put("/{menu_id}", response_model=BaseResponse[MenuResponse])
+@router.put("/{menu_id}", response_model=BaseResponse[MenuResponse], response_model_exclude_none=True)
 def update_menu(
     menu_id: int,
     name: str = Form(...),
@@ -165,7 +165,7 @@ def update_menu(
     )
 
 
-@router.delete("/{menu_id}", response_model=BaseResponse)
+@router.delete("/{menu_id}", response_model=BaseResponse, response_model_exclude_none=True)
 def delete_menu(menu_id: int, db: Session = Depends(get_db)):
     menu_controller.delete_menu(db=db,menu_id=menu_id)
     return BaseResponse(
@@ -173,4 +173,3 @@ def delete_menu(menu_id: int, db: Session = Depends(get_db)):
         message="Menu deleted successfully",
         data=None
     )
-

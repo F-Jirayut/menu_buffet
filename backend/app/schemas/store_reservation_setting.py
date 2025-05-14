@@ -1,5 +1,5 @@
 from datetime import time, datetime
-from pydantic import BaseModel, conint
+from pydantic import BaseModel, conint, ConfigDict
 from typing import Optional
 
 # สำหรับการอ่านข้อมูล (เช่น response)
@@ -12,9 +12,13 @@ class StoreReservationSettingBase(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = ConfigDict(
+        extra='ignore',
+        populate_by_name=True,
+        str_strip_whitespace=True,
+        from_attributes=True,
+        exclude_none=True
+    )
 
 
 # สำหรับการสร้างข้อมูลใหม่ (เช่น POST)

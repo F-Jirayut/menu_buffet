@@ -3,7 +3,7 @@
     <div class="container-fluid">
       <div class="row mb-4">
         <div class="col-12">
-          <h1 class="fw-bold">บทบาท</h1>
+          <h1 class="fw-bold">คำสั่งซื้อ</h1>
         </div>
       </div>
       <Breadcrumbs />
@@ -12,19 +12,19 @@
         <div class="col-md-8">
           <SearchBox
             v-model="search"
-            placeholder="Search Roles by ID or Name..."
+            placeholder="Search Orders by ID or Name..."
             @search="handleSearch"
           />
         </div>
         <div
           class="col-md-4 text-md-end text-start mt-2 mt-md-0"
-          v-if="permissionSet.has('Role.Create')"
+          v-if="permissionSet.has('Order.Create')"
         >
           <router-link
-            to="/admin/roles/edit"
+            to="/admin/orders/edit"
             class="btn btn-primary shadow-sm"
           >
-            <i class="bi bi-plus-lg me-1"></i> เพิ่มบทบาท
+            <i class="bi bi-plus-lg me-1"></i> เพิ่มคำสั่งซื้อ
           </router-link>
         </div>
       </div>
@@ -33,16 +33,16 @@
       <div class="row">
         <div class="col-12">
           <DataTable
-            :data="rolesStore.items"
+            :data="ordersStore.items"
             :columns="columns"
-            :pagination="rolesStore.pagination"
+            :pagination="ordersStore.pagination"
             :current-page="currentPage"
-            resource-type="admin/roles"
-            :can-edit="permissionSet.has('Role.Update')"
-            :can-delete="permissionSet.has('Role.Delete')"
-            :loading="rolesStore.loading"
+            resource-type="admin/orders"
+            :can-edit="permissionSet.has('Order.Update')"
+            :can-delete=false
+            :loading="ordersStore.loading"
             @page-changed="handlePageChange"
-            @delete-item="deleteRole"
+            @delete-item="deleteOrder"
           />
         </div>
       </div>
@@ -55,7 +55,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import Layout from "@/components/admin/Layout.vue";
 import DataTable from "@/components/admin/DataTable.vue";
 import SearchBox from "@/components/admin/SearchBox.vue";
-import { useRoleStore } from "@/stores/roleStore";
+import { useOrderStore } from "@/stores/orderStore";
 import { useAuthStore } from "@/stores/authStore";
 import {
   showSuccessOk,
@@ -67,7 +67,7 @@ import {
 import Breadcrumbs from "@/components/Breadcrumbs.vue";
 
 const auth = useAuthStore();
-const rolesStore = useRoleStore();
+const ordersStore = useOrderStore();
 const permissionSet = computed(() => new Set(auth.user?.permissions));
 
 const search = ref("");
@@ -76,47 +76,53 @@ const pageSize = ref(10);
 
 const columns = [
   { label: "ID", key: "id" },
-  { label: "ชื่อ", key: "name" },
+  { label: "Table ID", key: "table_id" },
+  { label: "สถานะ", key: "status" },
+  { label: "เวลาที่จอง", key: "reserved_at" },
+  { label: "เวลาเริ่ม", key: "started_at" },
+  { label: "เวลาสิ้นสุด", key: "ended_at" },
+  { label: "ราคา", key: "total_price" },
 ];
 
 onMounted(async () => {
-  await fetchRoles();
+  await fetchOrders();
 });
 
 watch(currentPage, async () => {
-  await fetchRoles();
+  await fetchOrders();
 });
 
-const fetchRoles = async () => {
-  await rolesStore.fetchData({
+const fetchOrders = async () => {
+  await ordersStore.fetchData({
     page: currentPage.value,
     per_page: pageSize.value,
     search: search.value
   });
+  console.log(ordersStore.items)
 };
 
 const handleSearch = async () => {
   currentPage.value = 1;
-  await fetchRoles();
+  await fetchOrders();
 };
 
 const handlePageChange = async (page) => {
   currentPage.value = page;
 };
 
-const deleteRole = async (id) => {
+const deleteOrder = async (id) => {
   const confirmed = await showConfirm("คุณต้องการลบข้อมูลนี้หรือไม่?");
   if (confirmed.isConfirmed) {
     showLoading();
-    await rolesStore.deleteData(id);
-    if (rolesStore.error) {
+    await ordersStore.deleteData(id);
+    if (ordersStore.error) {
       closeSwal();
-      showError("ลบข้อมูลไม่สำเร็จ", rolesStore.error);
+      showError("ลบข้อมูลไม่สำเร็จ", ordersStore.error);
       return;
     }
     closeSwal();
     await auth.fetchProfile();
-    await fetchRoles();
+    await fetchOrders();
     showSuccessOk("ลบข้อมูลสำเร็จ");
   }
 };

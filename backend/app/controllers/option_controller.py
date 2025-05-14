@@ -1,15 +1,19 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from app.models import MenuCategory, Role, StoreReservationSetting, StoreReservationOverride
+from app.models import MenuCategory, Role, StoreReservationSetting, StoreReservationOverride, Table, Customer
 from app.schemas.option import OptionResponse
 from typing import List, Literal, Optional
 from datetime import date
 
-def get_options(type: Literal["categories", "roles"], db: Session) -> List[OptionResponse]:
+def get_options(type: Literal["categories", "roles", "tables", "customers"], db: Session) -> List[OptionResponse]:
     if type == "categories":
         model = MenuCategory
     elif type == "roles":
         model = Role
+    elif type == "tables":
+        model = Table
+    elif type == "customers":
+        model = Customer
     else:
         raise HTTPException(status_code=400, detail="Invalid type")
 

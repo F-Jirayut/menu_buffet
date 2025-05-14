@@ -77,7 +77,7 @@ const pageSize = ref(10);
 
 const columns = [
   { label: "ID", key: "id" },
-  { label: "Name", key: "name" },
+  { label: "ชื่อ", key: "name" },
 ];
 
 onMounted(async () => {
