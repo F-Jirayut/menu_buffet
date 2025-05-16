@@ -27,7 +27,7 @@ export default [
             breadcrumb: (route) => {
                 return [
                   { name: 'ลูกค้า', to: '/admin/customers' },
-                  { name: route.params.id ? 'ดู / แก้ไขลูกค้า' : 'เพิ่มลูกค้า' }
+                  { name: route.params.id ? 'รายละเอียดลูกค้า' : 'เพิ่มลูกค้า' }
                 ]
             },
         }

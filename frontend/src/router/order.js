@@ -27,7 +27,7 @@ export default [
             breadcrumb: (route) => {
                 return [
                   { name: 'คำสั่งซื้อ', to: '/admin/orders' },
-                  { name: route.params.id ? 'ดู / แก้ไขคำสั่งซื้อ' : 'เพิ่มคำสั่งซื้อ' }
+                  { name: route.params.id ? 'รายละเอียดคำสั่งซื้อ' : 'เพิ่มคำสั่งซื้อ' }
                 ]
             },
         }

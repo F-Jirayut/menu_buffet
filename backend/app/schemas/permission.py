@@ -26,9 +26,5 @@ class PermissionCreate(PermissionBase):
 class Permission(PermissionBase):
     id: int
 
-    model_config = {
-        "from_attributes": True
-    }
-
 class GroupedPermissions(RootModel[Dict[str, List[str]]]):
     pass

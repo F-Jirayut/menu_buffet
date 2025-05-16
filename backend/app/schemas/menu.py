@@ -28,9 +28,6 @@ class MenuResponse(MenuBase):
     id: int
     image_url: Optional[str] = None
 
-    class Config:
-        from_attributes = True 
-
 class MenuInDB(MenuBase):
     id: int
     image_disk: Optional[str] = None

@@ -42,7 +42,12 @@ def run():
             {"name": "Order.Create", "description": "Can Create Orders"},
             {"name": "Order.Update", "description": "Can Update Orders"},
             {"name": "Order.Delete", "description": "Can Delete Orders"},
-            
+
+            {"name": "OrderItem.View", "description": "Can View Order Items"},
+            {"name": "OrderItem.Create", "description": "Can Create Order Items"},
+            {"name": "OrderItem.Update", "description": "Can Update Order Items"},
+            {"name": "OrderItem.Delete", "description": "Can Delete Order Items"},
+
             {"name": "Customer.View", "description": "Can View Customers"},
             {"name": "Customer.Create", "description": "Can Create Customers"},
             {"name": "Customer.Update", "description": "Can Update Customers"},

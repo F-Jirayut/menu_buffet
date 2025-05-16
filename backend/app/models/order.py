@@ -13,7 +13,6 @@ class Order(Base):
     started_at = Column(DateTime, nullable=False)
     ended_at = Column(DateTime, nullable=False)
     status = Column(Enum('pending', 'reserved', 'active', 'completed', 'cancelled', name='order_status'), nullable=False)
-    deposit_amount = Column(Numeric(10, 2), nullable=True)
     total_price = Column(Numeric(10, 2), nullable=True)
     note = Column(Text, nullable=True)
     email_sent = Column(Boolean, nullable=False, default=False)
@@ -22,3 +21,4 @@ class Order(Base):
 
     customer = relationship("Customer", back_populates="orders")
     payment_proofs = relationship("OrderPaymentProof", back_populates="order")
+    order_items = relationship("OrderItem", back_populates="order")

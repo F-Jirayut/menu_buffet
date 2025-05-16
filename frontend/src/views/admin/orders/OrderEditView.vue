@@ -4,7 +4,7 @@
       <div class="row mb-4">
         <div class="col-12">
           <h1 class="fw-bold">
-            {{ isEditMode ? "ดู / แก้ไขคำสั่งซื้อ" : "เพิ่มคำสั่งซื้อ" }}
+            {{ isEditMode ? "รายละเอียดคำสั่งซื้อ" : "เพิ่มคำสั่งซื้อ" }}
           </h1>
         </div>
       </div>
@@ -87,23 +87,21 @@
 
             <div class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6">
               <label for="orderStatus" class="form-label">สถานะ <span class="text-danger">*</span></label>
-              <input
+              <select
                 v-model="form.status"
-                type="text"
                 id="orderStatus"
-                class="form-control"
+                class="form-select"
                 required
-              />
-            </div>
-
-            <div class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6">
-              <label for="orderDepositAmount" class="form-label">ค่ามัดจำ</label>
-              <input
-                v-model="form.deposit_amount"
-                type="text"
-                id="orderDepositAmount"
-                class="form-control"
-              />
+              >
+                <option disabled value="">-- เลือกสถานะ --</option>
+                <option
+                  v-for="status in ordersStore.listStatus"
+                  :key="status"
+                  :value="status"
+                >
+                  {{ status }}
+                </option>
+              </select>
             </div>
 
             <div class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6">
@@ -178,7 +176,6 @@ const form = ref({
   started_at: null,
   ended_at: null,
   status: null,
-  deposit_amount: null,
   total_price: null,
   note: null,
   email_sent: null,
@@ -190,9 +187,18 @@ onMounted(async () => {
   if (isEditMode.value) {
     const order = await ordersStore.fetchDataById(id);
     if (order) {
-      name.value = order.name;
-      email.value = order.email;
-      phone.value = order.phone;
+      const customer = order.customer;
+      form.value = {
+        table_id: order.table_id,
+        customer_id: customer ? customer.id : null,
+        reserved_at: order.reserved_at,
+        started_at: order.started_at,
+        ended_at: order.ended_at,
+        status: order.status,
+        total_price: order.total_price,
+        note: order.note,
+        email_sent: order.email_sent,
+      };
     } else {
       showError("Error", "Order not found");
       router.push("/admin/orders");

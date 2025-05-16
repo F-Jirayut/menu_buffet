@@ -25,10 +25,6 @@ class User(UserBase):
     created_at: datetime
     updated_at: datetime
 
-    model_config = {
-        "from_attributes": True
-    }
-
 class UserLogin(BaseModel):
     username: str
     password: str

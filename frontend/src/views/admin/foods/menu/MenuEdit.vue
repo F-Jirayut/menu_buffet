@@ -4,7 +4,7 @@
       <div class="row mb-4">
         <div class="col-12">
           <h1 class="fw-bold">
-            {{ isEditMode ? "ดู / แก้ไขเมนู" : "เพิ่มเมนู" }}
+            {{ isEditMode ? "รายละเอียดเมนู" : "เพิ่มเมนู" }}
           </h1>
         </div>
       </div>
@@ -16,9 +16,11 @@
         <form @submit.prevent="submitForm" enctype="multipart/form-data">
           <div class="row">
             <!-- Name -->
-            <div class="mb-3 col-xl-6">
+            <div
+              class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6"
+            >
               <label for="menuName" class="form-label"
-                >Name <span class="text-danger">*</span></label
+                >ชื่อ <span class="text-danger">*</span></label
               >
               <input
                 v-model="name"
@@ -30,7 +32,9 @@
             </div>
 
             <!-- Sort Order -->
-            <div class="mb-3 col-xl-6">
+            <div
+              class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6"
+            >
               <label for="menuSortOrder" class="form-label">Sort Order</label>
               <input
                 v-model="sort_order"
@@ -41,10 +45,10 @@
             </div>
 
             <!-- Description -->
-            <div class="mb-3 col-xl-6">
-              <label for="menuDescription" class="form-label"
-                >Description</label
-              >
+            <div
+              class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6"
+            >
+              <label for="menuDescription" class="form-label">รายละเอียด</label>
               <textarea
                 v-model="description"
                 id="menuDescription"
@@ -53,9 +57,11 @@
             </div>
 
             <!-- Category -->
-            <div class="mb-3 col-xl-6">
+            <div
+              class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6"
+            >
               <label for="categorySelect" class="form-label"
-                >Category <span class="text-danger">*</span></label
+                >ประเภท <span class="text-danger">*</span></label
               >
               <select
                 v-model="category_id"
@@ -63,7 +69,7 @@
                 class="form-select"
                 required
               >
-                <option disabled value="">-- Select category --</option>
+                <option disabled value="">-- เลือกประเภท --</option>
                 <option
                   v-for="cat in CategorySelectOption"
                   :key="cat.id"
@@ -74,9 +80,27 @@
               </select>
             </div>
 
+            <div
+              class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6"
+            >
+              <label for="isAvailable" class="form-label">สถานะ</label>
+              <select
+                v-model="isAvailable"
+                id="isAvailable"
+                class="form-select"
+              >
+                <option value="true">ใช้งาน</option>
+                <option value="false">ไม่ใช้งาน</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
             <!-- Image -->
-            <div class="mb-3 col-xl-6">
-              <label class="form-label">Image</label>
+            <div
+              class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6"
+            >
+              <label class="form-label">รูปภาพ</label>
               <input
                 type="file"
                 class="form-control"
@@ -86,8 +110,11 @@
             </div>
 
             <!-- Image Preview -->
-            <div class="mb-3 col-xl-6" v-if="imagePreview">
-              <label class="form-label">Image Preview</label><br />
+            <div
+              class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6"
+              v-if="imagePreview"
+            >
+              <label class="form-label">ตัวอย่างรูปภาพ</label><br />
               <a :href="imagePreview" target="_blank">
                 <img
                   :src="imagePreview"
@@ -106,7 +133,6 @@
               :deleteItem="deleteMenu"
             />
           </div>
-
         </form>
       </div>
       <LoadingOverlay v-else />
@@ -119,7 +145,14 @@ import { ref, onMounted, computed } from "vue";
 import Layout from "@/components/admin/Layout.vue";
 import { useMenuStore } from "@/stores/menuStore";
 import { useRouter, useRoute } from "vue-router";
-import { showSuccess, showError, showLoading, closeSwal, showConfirm, showSuccessOk } from "@/utils/swal";
+import {
+  showSuccess,
+  showError,
+  showLoading,
+  closeSwal,
+  showConfirm,
+  showSuccessOk,
+} from "@/utils/swal";
 import { useAuthStore } from "@/stores/authStore";
 import { getOptions } from "@/services/optionService";
 import LoadingOverlay from "@/components/LoadingOverlay.vue";
@@ -139,6 +172,7 @@ const description = ref("");
 const sort_order = ref();
 const category_id = ref("");
 const CategorySelectOption = ref([]);
+const isAvailable = ref(true);
 
 const imageFile = ref(null);
 const imagePreview = ref("");
@@ -162,6 +196,7 @@ onMounted(async () => {
       sort_order.value = menu.sort_order;
       category_id.value = menu.category_id;
       imagePreview.value = menu.image_url || "";
+      isAvailable.value = menu.is_available;
     } else {
       showError("Error", "Menu not found");
       router.push("/admin/foods/");
@@ -227,9 +262,8 @@ const deleteMenu = async (id) => {
       return;
     }
     closeSwal();
-    router.push('/admin/foods/menus')
+    router.push("/admin/foods/menus");
     showSuccessOk("ลบข้อมูลสำเร็จ");
   }
 };
-
 </script>

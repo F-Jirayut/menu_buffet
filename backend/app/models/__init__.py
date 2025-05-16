@@ -11,3 +11,4 @@ from .table import Table
 from .order import Order
 from .customer import Customer
 from .order_payment_proof import OrderPaymentProof
+from .order_item import OrderItem

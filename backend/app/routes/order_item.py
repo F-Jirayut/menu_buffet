@@ -1,49 +1,49 @@
-from app.controllers import order_controller
+from app.controllers import order_item_controller
 from app.utils.query_utils import count_pagination_items, get_pagination_items, parse_order_by_params
 from app.schemas.pagination import Pagination
 from app.controllers.controller import paginate_controller
+from app.models import OrderItem
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Form, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session, joinedload
-from app.schemas.order import OrderResponse, OrderCreate, OrderUpdate
+from app.schemas.order_item import OrderItemResponse, OrderItemCreate, OrderItemUpdate
 from app.schemas.base_response import BaseResponse
 from app.database import Database
 from app.dependencies.auth import get_current_user
 from app.dependencies.user_permission import check_permissions
-from typing import List, Optional, Tuple
-from app.models import Order
+from typing import List, Optional
 import re
 
 db_instance = Database()
 get_db = db_instance.get_db
-prefix = "/orders"
+prefix = "/order_items"
 
 resource_permissions = {
     "GET": [
-        {"pattern": re.compile(f"^{prefix}/$"), "permissions": ["Order.View"]},
-        {"pattern": re.compile(f"^{prefix}/[^/]+$"), "permissions": ["Order.View"]},
+        {"pattern": re.compile(f"^{prefix}/$"), "permissions": ["OrderItem.View"]},
+        {"pattern": re.compile(f"^{prefix}/[^/]+$"), "permissions": ["OrderItem.View"]},
     ],
     "POST": [
-        {"pattern": re.compile(f"^{prefix}/$"), "permissions": ["Order.Create"]}
+        {"pattern": re.compile(f"^{prefix}/$"), "permissions": ["OrderItem.Create"]}
     ],
     "PUT": [
-        {"pattern": re.compile(f"^{prefix}/[^/]+$"), "permissions": ["Order.Update"]}
+        {"pattern": re.compile(f"^{prefix}/[^/]+$"), "permissions": ["OrderItem.Update"]}
     ],
     "DELETE": [
-        {"pattern": re.compile(f"^{prefix}/[^/]+$"), "permissions": ["Order.Delete"]}
+        {"pattern": re.compile(f"^{prefix}/[^/]+$"), "permissions": ["OrderItem.Delete"]}
     ]
 }
 
 router = APIRouter(
     prefix=prefix,
-    tags=["Orders"],
+    tags=["Order_Items"],
     dependencies=[
         Depends(get_current_user),
         Depends(check_permissions(resource_permissions, get_db))
     ]
 )
 
-@router.get("/", response_model=BaseResponse[List[OrderResponse]])
+@router.get("/", response_model=BaseResponse[List[OrderItemResponse]])
 def get_orders(
     db: Session = Depends(get_db),
     page: int = Query(1, ge=1),
@@ -54,18 +54,18 @@ def get_orders(
 ):
     items, total, pages = paginate_controller(
         db=db,
-        model=Order,
+        model=OrderItem,
         page=page,
         page_size=page_size,
         search=search,
         order_by=order_by,
         search_fields=search_fields,
-        options=[joinedload(Order.customer)]
+        options=[joinedload(OrderItem.menu)]
     )
     
     return BaseResponse(
         success=True,
-        message="Orders fetched successfully",
+        message="Order items fetched successfully",
         data=items,
         pagination=Pagination(
             page=page,
@@ -75,43 +75,43 @@ def get_orders(
         )
     )
     
-@router.get("/{order_id}", response_model=BaseResponse[OrderResponse], response_model_exclude={"pagination"})
+@router.get("/{order_id}", response_model=BaseResponse[OrderItemResponse], response_model_exclude={"pagination"})
 def order(
     order_id: int,
     db: Session = Depends(get_db)
 ):
-    db_order = order_controller.get_order_by_id(db, id=order_id, include_items=False, include_group_order_items=True)
+    db_order = order_item_controller.get_order_item_by_id(db, id=order_id, include_menu=True)
     if not db_order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(status_code=404, detail="Order item not found")
     return BaseResponse(
         success=True,
-        message="Order fetched successfully",
+        message="Order item fetched successfully",
         data=db_order
     )
     
-@router.post("/", response_model=BaseResponse[OrderResponse], response_model_exclude={"pagination"})
-def create_order(order: OrderCreate, db: Session = Depends(get_db)):
-    db_order = order_controller.create_order(db=db, order=order)
+@router.post("/", response_model=BaseResponse[List[OrderItemResponse]], response_model_exclude={"pagination"})
+def create_order(order_items: List[OrderItemCreate], db: Session = Depends(get_db)):
+    db_order_items = order_item_controller.create_order_item(db=db, order_items=order_items)
     return BaseResponse(
         success=True,
-        message="Order created successfully",
-        data=db_order
+        message="Order item created successfully",
+        data=db_order_items
     )
     
-@router.put("/{order_id}", response_model=BaseResponse[OrderResponse], response_model_exclude={"pagination"})
-def update_order(order_id: int, order: OrderUpdate, db: Session = Depends(get_db)):
-    db_order = order_controller.update_order(db=db, order_id=order_id, order=order)
-    return BaseResponse(
-        success=True,
-        message="Order updated successfully",
-        data=db_order
-    )
+# @router.put("/{order_id}", response_model=BaseResponse[OrderItemResponse], response_model_exclude={"pagination"})
+# def update_order(order_id: int, order: OrderItemUpdate, db: Session = Depends(get_db)):
+#     db_order = order_item_controller.update_order(db=db, order_id=order_id, order=order)
+#     return BaseResponse(
+#         success=True,
+#         message="Order item updated successfully",
+#         data=db_order
+#     )
 
 @router.delete("/{order_id}", response_model=BaseResponse, response_model_exclude={"pagination"})
 def delete_order(order_id: int, db: Session = Depends(get_db)):
-    order_controller.delete_order(db=db, order_id=order_id)
+    order_item_controller.delete_order(db=db, order_id=order_id)
     return BaseResponse(
         success=True,
-        message="Order deleted successfully",
+        message="Order item deleted successfully",
         data=None
     )

@@ -4,7 +4,7 @@
       <div class="row mb-4">
         <div class="col-12">
           <h1 class="fw-bold">
-            {{ isEditMode ? "ดู / แก้ไขลูกค้า" : "เพิ่มลูกค้า" }}
+            {{ isEditMode ? "รายละเอียดลูกค้า" : "เพิ่มลูกค้า" }}
           </h1>
         </div>
       </div>

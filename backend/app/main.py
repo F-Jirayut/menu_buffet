@@ -1,7 +1,7 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.staticfiles import StaticFiles
 import os
-from app.routes import user, role, auth, permission, menu_category, menu, option, table, order, customer
+from app.routes import user, role, auth, permission, menu_category, menu, option, table, order, customer, order_item
 from app.database import Base, engine
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
@@ -40,3 +40,4 @@ app.include_router(option.router, prefix="/api")
 app.include_router(table.router, prefix="/api")
 app.include_router(order.router, prefix="/api")
 app.include_router(customer.router, prefix="/api")
+app.include_router(order_item.router, prefix="/api")

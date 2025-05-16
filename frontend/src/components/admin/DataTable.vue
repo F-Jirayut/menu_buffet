@@ -23,9 +23,10 @@
                 <router-link
                   v-if="canEdit"
                   :to="`/${resourceType}/edit/${item.id}`"
-                  class="btn btn-warning btn-sm me-2"
+                  class="btn btn-sm me-2"
+                  style="color: #fff; background-color: #17a2b8;"
                 >
-                  ดู / แก้ไข
+                  รายละเอียด
                 </router-link>
                 <button
                   v-if="canDelete"

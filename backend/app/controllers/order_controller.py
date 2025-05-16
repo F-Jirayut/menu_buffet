@@ -2,11 +2,13 @@
 
 from app.models import Order
 from app.schemas.order import OrderCreate, OrderUpdate
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException, status
 from sqlalchemy import func, or_, cast, String
 from typing import Dict, Optional
+from collections import defaultdict
+from datetime import datetime
 
 def get_orders(db: Session, search: Optional[str] = None):
     query = db.query(Order)
@@ -25,8 +27,46 @@ def get_orders(db: Session, search: Optional[str] = None):
 def get_order_by_name(db: Session, name: str):
     return db.query(Order).filter(Order.name == name).first()
 
-def get_order_by_id(db: Session, id: int):
-    return db.query(Order).filter(Order.id == id).first()
+def get_order_by_id(
+    db: Session,
+    id: int,
+    include_items: bool = False,
+    include_group_order_items: bool = False
+):
+    query = db.query(Order).filter(Order.id == id)
+
+    # load order_items ด้วย joinedload เฉพาะตอนต้องใช้
+    if include_items or include_group_order_items:
+        query = query.options(joinedload(Order.order_items))
+
+    order = query.first()
+
+    if not order:
+        return None
+
+    # จัดกลุ่ม order_items ถ้าต้องการ
+    if include_group_order_items:
+        groups = defaultdict(list)
+        for item in order.order_items:
+            order_date = item.created_at.strftime("%Y-%m-%d %H:%M:%S")
+            groups[order_date].append(item)
+
+        # แนบ group_order_items เข้าไปใน object (ทำงานเฉพาะ Pydantic schema ที่รับจาก_attributes)
+        order.group_order_items = [
+            {
+                "created_at": order_date,
+                "order_items": items
+            }
+            for order_date, items in groups.items()
+        ]
+    else:
+        order.group_order_items = []
+
+    # ถ้าไม่ต้องการ order_items → ล้างทิ้งให้ไม่ส่งออก
+    if not include_items:
+        order.order_items = []
+        
+    return order
 
 def create_order(db: Session, order: OrderCreate):
     overlapping_order = db.query(Order).filter(
@@ -37,7 +77,7 @@ def create_order(db: Session, order: OrderCreate):
     ).first()
 
     if overlapping_order:
-        raise HTTPException(status_code=400, detail="There is already an existing order with overlapping time.")
+        raise HTTPException(status_code=400, detail="มีคำสั่งซื้อที่มีอยู่แล้วและมีระยะเวลาทับซ้อนกัน")
     
     db_order = Order(
         table_id=order.table_id,
@@ -46,7 +86,6 @@ def create_order(db: Session, order: OrderCreate):
         started_at=order.started_at,
         ended_at=order.ended_at,
         status=order.status,
-        deposit_amount=order.deposit_amount,
         total_price=order.total_price,
         note=order.note,
     )
@@ -87,7 +126,6 @@ def update_order(db: Session, order_id: int, order: OrderUpdate) -> Order:
     db_order.started_at = order.started_at
     db_order.ended_at = order.ended_at
     db_order.status = order.status
-    db_order.deposit_amount = order.deposit_amount
     db_order.total_price = order.total_price
     db_order.note = order.note
 

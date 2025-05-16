@@ -26,7 +26,7 @@ export default [
             breadcrumb: (route) => {
                 return [
                   { name: 'ผู้ใช้งาน', to: '/admin/users' },
-                  { name: route.params.id ? 'ดู / แก้ไขผู้ใช้งาน' : 'เพิ่มผู้ใช้งาน' }
+                  { name: route.params.id ? 'รายละเอียดผู้ใช้งาน' : 'เพิ่มผู้ใช้งาน' }
                 ]
             },
         }

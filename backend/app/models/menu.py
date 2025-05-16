@@ -20,6 +20,7 @@ class Menu(Base):
     deleted_at = Column(TIMESTAMP(timezone=True), nullable=True)
 
     menu_category = relationship("MenuCategory", back_populates="menus")
+    order_items = relationship("OrderItem", back_populates="menu")
 
     @property
     def image_url(self):

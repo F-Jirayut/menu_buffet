@@ -27,7 +27,7 @@ export default [
             breadcrumb: (route) => {
                 return [
                   { name: 'บทบาท', to: '/admin/roles' },
-                  { name: route.params.id ? 'ดู / แก้ไขบทบาท' : 'เพิ่มบทบาท' }
+                  { name: route.params.id ? 'รายละเอียดบทบาท' : 'เพิ่มบทบาท' }
                 ]
             },
         }

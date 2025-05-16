@@ -28,7 +28,7 @@ export default [
             breadcrumb: (route) => {
                 return [
                   { name: 'เมนู', to: '/admin/foods/menus' },
-                  { name: route.params.id ? 'ดู / แก้ไขเมนู' : 'เพิ่มเมนู' }
+                  { name: route.params.id ? 'รายละเอียดเมนู' : 'เพิ่มเมนู' }
                 ]
             },
         }
@@ -56,7 +56,7 @@ export default [
             breadcrumb: (route) => {
                 return [
                   { name: 'ประเภท', to: '/admin/foods/categories' },
-                  { name: route.params.id ? 'ดู / แก้ไขประเภท' : 'เพิ่มประเภท' }
+                  { name: route.params.id ? 'รายละเอียดประเภท' : 'เพิ่มประเภท' }
                 ]
             },
         }

@@ -4,7 +4,7 @@
       <div class="row mb-4">
         <div class="col-12">
           <h1 class="fw-bold">
-            {{ isEditMode ? "ดู / แก้ไขประเภท" : "เพิ่มประเภท" }}
+            {{ isEditMode ? "รายละเอียดประเภท" : "เพิ่มประเภท" }}
           </h1>
         </div>
       </div>
@@ -19,7 +19,7 @@
               class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6"
             >
               <label for="menuCategoryName" class="form-label"
-                >Name <span class="text-danger">*</span></label
+                >ชื่อ <span class="text-danger">*</span></label
               >
               <input
                 v-model="name"
@@ -50,7 +50,7 @@
               class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6"
             >
               <label for="menuCategoryName" class="form-label"
-                >Description</label
+                >รายละเอียด</label
               >
               <textarea
                 v-model="description"

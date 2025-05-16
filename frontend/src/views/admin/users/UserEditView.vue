@@ -3,7 +3,7 @@
     <div class="container-fluid">
       <div class="row mb-4">
         <div class="col-12">
-          <h1 class="fw-bold">{{ isEditMode ? 'ดู / แก้ไขผู้ใช้งาน' : 'เพิ่มผู้ใช้งาน' }}</h1>
+          <h1 class="fw-bold">{{ isEditMode ? 'รายละเอียดผู้ใช้งาน' : 'เพิ่มผู้ใช้งาน' }}</h1>
         </div>
       </div>
       <Breadcrumbs />

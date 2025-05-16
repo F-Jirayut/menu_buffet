@@ -3,7 +3,7 @@
     <div class="container-fluid">
       <div class="row mb-4">
         <div class="col-12">
-          <h1 class="fw-bold">{{ isEditMode ? 'ดู / แก้ไขสิทธิ์การใช้งาน' : 'เพิ่มสิทธิ์การใช้งาน' }}</h1>
+          <h1 class="fw-bold">{{ isEditMode ? 'รายละเอียดสิทธิ์การใช้งาน' : 'เพิ่มสิทธิ์การใช้งาน' }}</h1>
         </div>
       </div>
       <Breadcrumbs />

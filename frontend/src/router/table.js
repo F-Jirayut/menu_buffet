@@ -26,7 +26,7 @@ export default [
             breadcrumb: (route) => {
                 return [
                   { name: 'โต๊ะ', to: '/admin/tables' },
-                  { name: route.params.id ? 'ดู / แก้ไขโต๊ะ' : 'เพิ่มโต๊ะ' }
+                  { name: route.params.id ? 'รายละเอียดโต๊ะ' : 'เพิ่มโต๊ะ' }
                 ]
             },
         }

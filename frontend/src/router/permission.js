@@ -26,7 +26,7 @@ export default [
             breadcrumb: (route) => {
                 return [
                   { name: 'สิทธิ์การใช้งาน', to: '/admin/permissions' },
-                  { name: route.params.id ? 'ดู / แก้ไขสิทธิ์การใช้งาน' : 'เพิ่มสิทธิ์การใช้งาน' }
+                  { name: route.params.id ? 'รายละเอียดสิทธิ์การใช้งาน' : 'เพิ่มสิทธิ์การใช้งาน' }
                 ]
             },
         }

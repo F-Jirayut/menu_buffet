@@ -34,7 +34,7 @@ resource_permissions = {
 
 router = APIRouter(
     prefix=prefix,
-    tags=["Menu_categories"],
+    tags=["Menu_Categories"],
     dependencies=[
         Depends(get_current_user),
         Depends(check_permissions(resource_permissions, get_db))
@@ -91,7 +91,7 @@ def get_all_menu_categories(
 
     return BaseResponse(
         success=True,
-        message="Menu category fetched successfully",
+        message="Menu categories fetched successfully",
         data=db_menus,
         pagination=Pagination(
             page=page,
