@@ -3,7 +3,7 @@ from app.utils.query_utils import count_pagination_items, get_pagination_items, 
 from app.schemas.pagination import Pagination
 from app.controllers.controller import paginate_controller
 from app.models import OrderItem
-from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Form, Query
+from fastapi import APIRouter, Depends, HTTPException,Query, Body
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session, joinedload
 from app.schemas.order_item import OrderItemResponse, OrderItemCreate, OrderItemUpdate
@@ -90,7 +90,7 @@ def order(
     )
     
 @router.post("/", response_model=BaseResponse[List[OrderItemResponse]], response_model_exclude={"pagination"})
-def create_order(order_items: List[OrderItemCreate], db: Session = Depends(get_db)):
+def create_order(order_items: List[OrderItemCreate] = Body(..., min_items=1, max_items=10), db: Session = Depends(get_db)):
     db_order_items = order_item_controller.create_order_item(db=db, order_items=order_items)
     return BaseResponse(
         success=True,
@@ -98,20 +98,23 @@ def create_order(order_items: List[OrderItemCreate], db: Session = Depends(get_d
         data=db_order_items
     )
     
-# @router.put("/{order_id}", response_model=BaseResponse[OrderItemResponse], response_model_exclude={"pagination"})
-# def update_order(order_id: int, order: OrderItemUpdate, db: Session = Depends(get_db)):
-#     db_order = order_item_controller.update_order(db=db, order_id=order_id, order=order)
-#     return BaseResponse(
-#         success=True,
-#         message="Order item updated successfully",
-#         data=db_order
-#     )
-
-@router.delete("/{order_id}", response_model=BaseResponse, response_model_exclude={"pagination"})
-def delete_order(order_id: int, db: Session = Depends(get_db)):
-    order_item_controller.delete_order(db=db, order_id=order_id)
+@router.put("/", response_model=BaseResponse[List[OrderItemResponse]], response_model_exclude={"pagination"})
+def update_orders(
+    order_items: List[OrderItemUpdate] = Body(..., min_items=1, max_items=10),
+    db: Session = Depends(get_db)
+):
+    db_orders = order_item_controller.update_order_items(db=db, order_items=order_items)
     return BaseResponse(
         success=True,
-        message="Order item deleted successfully",
-        data=None
+        message="Order items updated successfully",
+        data=db_orders
     )
+
+# @router.delete("/{order_id}", response_model=BaseResponse, response_model_exclude={"pagination"})
+# def delete_order(order_id: int, db: Session = Depends(get_db)):
+#     order_item_controller.delete_order(db=db, order_id=order_id)
+#     return BaseResponse(
+#         success=True,
+#         message="Order item deleted successfully",
+#         data=None
+#     )

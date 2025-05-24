@@ -4,50 +4,62 @@
     <!-- แสดง loading -->
 
     <template v-else>
-      <table class="table table-bordered table-responsive">
-        <thead class="table-light">
-          <tr>
-            <th v-for="(column, index) in columns" :key="index">
-              {{ column.label }}
-            </th>
-            <th v-if="!noActions">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, index) in data" :key="index">
-            <td v-for="(column, columnIndex) in columns" :key="columnIndex">
-              {{ item[column.key] }}
-            </td>
-            <td v-if="!noActions">
-              <div>
-                <router-link
-                  v-if="canEdit"
-                  :to="`/${resourceType}/edit/${item.id}`"
-                  class="btn btn-sm me-2"
-                  style="color: #fff; background-color: #17a2b8;"
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead class="table-light">
+            <tr>
+              <th v-for="(column, index) in columns" :key="index">
+                {{ column.label }}
+              </th>
+              <th v-if="!noActions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in data" :key="index">
+              <td v-for="(column, columnIndex) in columns" :key="columnIndex">
+                <slot
+                  v-if="column.slot"
+                  :name="`column-${column.key}`"
+                  :value="item[column.key]"
+                  :item="item"
                 >
-                  รายละเอียด
-                </router-link>
-                <button
-                  v-if="canDelete"
-                  class="btn btn-danger btn-sm"
-                  @click="deleteItem(item.id)"
-                >
-                  ลบ
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr v-if="data.length === 0">
-            <td
-              :colspan="columns.length + (noActions ? 0 : 1)"
-              class="text-center"
-            >
-              ไม่พบข้อมูล
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                  {{ item[column.key] }}
+                </slot>
+                <template v-else>
+                  {{ item[column.key] }}
+                </template>
+              </td>
+              <td v-if="!noActions">
+                <div>
+                  <router-link
+                    v-if="canEdit"
+                    :to="`/${resourceType}/edit/${item.id}`"
+                    class="btn btn-sm me-2"
+                    style="color: #fff; background-color: #17a2b8"
+                  >
+                    รายละเอียด
+                  </router-link>
+                  <button
+                    v-if="canDelete"
+                    class="btn btn-danger btn-sm"
+                    @click="deleteItem(item.id)"
+                  >
+                    ลบ
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="data.length === 0">
+              <td
+                :colspan="columns.length + (noActions ? 0 : 1)"
+                class="text-center"
+              >
+                ไม่พบข้อมูล
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <Pagination
         v-if="pagination"

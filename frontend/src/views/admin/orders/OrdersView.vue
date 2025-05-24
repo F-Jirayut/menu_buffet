@@ -9,15 +9,29 @@
       <Breadcrumbs />
       <!-- Search & Add Button -->
       <div class="row align-items-center mb-4">
-        <div class="col-md-8">
+        <div class="col-md-2">
+          <select id="orderStatus" class="form-select" required v-model="searchStatus" @change="fetchOrders">
+            <option value="">ทั้งหมด</option>
+            <option
+              v-for="status in ordersStore.listStatus"
+              :key="status"
+              :value="status"
+            >
+              {{ status }}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
           <SearchBox
             v-model="search"
             placeholder="Search Orders by ID or Name..."
             @search="handleSearch"
           />
         </div>
+
         <div
-          class="col-md-4 text-md-end text-start mt-2 mt-md-0"
+          class="col-md-4 d-flex justify-content-md-end justify-content-start mt-2 mt-md-0 ms-md-auto"
           v-if="permissionSet.has('Order.Create')"
         >
           <router-link
@@ -32,18 +46,23 @@
       <!-- Table Section -->
       <div class="row">
         <div class="col-12">
-          <DataTable
+          <DataTable 
             :data="ordersStore.items"
             :columns="columns"
             :pagination="ordersStore.pagination"
             :current-page="currentPage"
             resource-type="admin/orders"
             :can-edit="permissionSet.has('Order.Update')"
-            :can-delete=false
+            :can-delete="false"
             :loading="ordersStore.loading"
             @page-changed="handlePageChange"
-            @delete-item="deleteOrder"
-          />
+            @delete-item="deleteOrder">
+            <template #column-status="{ value }">
+            <span :style="getStatusStyle(value)">
+              {{ value }}
+            </span>
+          </template>
+          </DataTable>
         </div>
       </div>
     </div>
@@ -70,6 +89,7 @@ const auth = useAuthStore();
 const ordersStore = useOrderStore();
 const permissionSet = computed(() => new Set(auth.user?.permissions));
 
+const searchStatus = ref("");
 const search = ref("");
 const currentPage = ref(1);
 const pageSize = ref(10);
@@ -77,7 +97,7 @@ const pageSize = ref(10);
 const columns = [
   { label: "ID", key: "id" },
   { label: "Table ID", key: "table_id" },
-  { label: "สถานะ", key: "status" },
+  { label: 'สถานะ', key: 'status', slot: true },
   { label: "เวลาที่จอง", key: "reserved_at" },
   { label: "เวลาเริ่ม", key: "started_at" },
   { label: "เวลาสิ้นสุด", key: "ended_at" },
@@ -96,9 +116,9 @@ const fetchOrders = async () => {
   await ordersStore.fetchData({
     page: currentPage.value,
     per_page: pageSize.value,
-    search: search.value
+    search: search.value,
+    status: searchStatus.value,
   });
-  console.log(ordersStore.items)
 };
 
 const handleSearch = async () => {
@@ -108,6 +128,23 @@ const handleSearch = async () => {
 
 const handlePageChange = async (page) => {
   currentPage.value = page;
+};
+
+const getStatusStyle = (status) => {
+  switch ((status || '').toLowerCase()) {
+    case 'pending':
+      return `color: #ffc107; font-weight: bold;`;
+    case 'reserved':
+      return `color: #17a2b8; font-weight: bold;`;
+    case 'active':
+      return `color: #28a745; font-weight: bold;`;
+    case 'completed':
+      return `color: #007bff; font-weight: bold;`;
+    case 'cancelled':
+      return `color: #dc3545; font-weight: bold;`;
+    default:
+      return `color: #6c757d; font-weight: bold;`;
+  }
 };
 
 const deleteOrder = async (id) => {

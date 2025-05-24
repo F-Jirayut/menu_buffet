@@ -1,5 +1,3 @@
-
-
 from calendar import c
 from app.models import Order, OrderItem, Menu
 from app.schemas.order_item import OrderItemCreate, OrderItemUpdate
@@ -18,8 +16,8 @@ def get_order_items(db: Session, search: Optional[str] = None):
         search_like = f"%{search}%"
         query = query.filter(
             or_(
-                cast(OrderItem.id, String).like(search_like),
-                OrderItem.menu_name.like(search_like)
+                cast(OrderItem.id, String).like(search_like)
+                # OrderItem.menu_name.like(search_like)
             )
         )
 
@@ -63,9 +61,9 @@ def create_order_item(db: Session, order_items: List[OrderItemCreate]):
         if not db_menu:
             raise HTTPException(status_code=404, detail=f"Menu not found for ID {item.menu_id}")
 
-        db_item = OrderItem(
+        db_items.append(OrderItem(
             menu_id=item.menu_id,
-            menu_name=item.menu_name,
+            menu_name=db_menu.name,
             order_id=item.order_id,
             quantity=item.quantity,
             price=item.price,
@@ -73,11 +71,10 @@ def create_order_item(db: Session, order_items: List[OrderItemCreate]):
             note=item.note,
             created_at=now,
             updated_at=now,
-        )
-        db.add(db_item)
-        db_items.append(db_item)
+        ))
 
     try:
+        db.add_all(db_items)
         db.commit()
         for item in db_items:
             db.refresh(item)
@@ -88,55 +85,63 @@ def create_order_item(db: Session, order_items: List[OrderItemCreate]):
 
     return db_items
 
-# def update_order(db: Session, order_id: int, order: OrderUpdate) -> Order:
-#     db_order_item = db.query(Order).filter(Order.id == order_id).first()
+def update_order_items(db: Session, order_items: List[OrderItemUpdate]):
+    updated_items = []
+
+    for item in order_items:
+        db_item = db.query(OrderItem).filter(OrderItem.id == item.id).first()
+        if not db_item:
+            raise HTTPException(status_code=404, detail=f"OrderItem not found: ID {item.id}")
+        
+        order = db_item.order
+        if not order:
+            raise HTTPException(status_code=404, detail=f"Order not found for OrderItem ID 1 {item.id}")
+        
+        now = datetime.now(zoneinfo.ZoneInfo("Asia/Bangkok"))
+        overlap_exists = db.query(Order).filter(
+            and_(
+                Order.table_id == order.table_id,
+                Order.status != 'completed',
+                Order.started_at <= now,
+                Order.ended_at >= now
+            )
+        ).first()
+        
+        if not overlap_exists:
+            raise HTTPException(status_code=400, detail="หมดเวลาสั่งอาหารแล้ว")
+
+        if item.quantity is not None:
+            db_item.quantity = item.quantity
+
+        if item.status is not None: 
+            db_item.status = item.status
+
+        if item.note is not None:
+            db_item.note = item.note
+
+        updated_items.append(db_item)
+
+    try:
+        db.add_all(updated_items)
+        db.commit()
+        for item in updated_items:
+            db.refresh(item)
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error updating order items: {str(e)}")
+
+    return updated_items
+
+# def delete_order(db: Session, order_id: int) -> Dict[str, str]:
+#     db_order_item = db.query(OrderItem).filter(OrderItem.id == order_id).first()
 #     if not db_order_item:
 #         raise HTTPException(status_code=404, detail="Order item not found")
-
-#     # ตรวจสอบว่ามีคำสั่งซื้ออื่นที่มีช่วงเวลาทับซ้อนกับคำสั่งซื้อที่อัปเดต (ยกเว้นตัวเอง)
-#     overlapping_order = db.query(Order).filter(
-#         Order.table_id == order.table_id,  # ตรวจสอบตาม table_id
-#         Order.status != 'completed',  # ตรวจสอบว่าไม่ใช่สถานะ 'completed'
-#         Order.id != order_id,  # ตรวจสอบว่าไม่ใช่คำสั่งซื้อนี้เอง
-#         Order.started_at < order.ended_at,   # started_at ของคำสั่งซื้อใหม่ต้องหลังจาก ended_at ของคำสั่งซื้อเก่า
-#         Order.ended_at > order.started_at  # ended_at ของคำสั่งซื้อเก่าต้องหลังจาก started_at ของคำสั่งซื้อใหม่
-#     ).first()
-
-#     if overlapping_order:
-#         raise HTTPException(status_code=400, detail="มีคำสั่งซื้อที่มีอยู่แล้วและมีระยะเวลาทับซ้อนกัน")
-
-#     # อัปเดตคำสั่งซื้อใหม่ในฐานข้อมูล
-#     db_order_item.table_id = order.table_id
-#     db_order_item.customer_id = order.customer_id
-#     db_order_item.reserved_at = order.reserved_at
-#     db_order_item.started_at = order.started_at
-#     db_order_item.ended_at = order.ended_at
-#     db_order_item.status = order.status
-#     db_order_item.total_price = order.total_price
-#     db_order_item.note = order.note
-
-#     # บันทึกการอัปเดต
 #     try:
+#         db.delete(db_order_item)
 #         db.commit()
-#         db.refresh(db_order_item)
 #     except SQLAlchemyError as e:
 #         db.rollback()
 #         print(str(e))
-#         raise HTTPException(status_code=500, detail="Error updating order item")
-
-#     return db_order_item
-
-
-def delete_order(db: Session, order_id: int) -> Dict[str, str]:
-    db_order_item = db.query(OrderItem).filter(OrderItem.id == order_id).first()
-    if not db_order_item:
-        raise HTTPException(status_code=404, detail="Order item not found")
-    try:
-        db.delete(db_order_item)
-        db.commit()
-    except SQLAlchemyError as e:
-        db.rollback()
-        print(str(e))
-        raise HTTPException(status_code=500, detail="Error deleting order item")
+#         raise HTTPException(status_code=500, detail="Error deleting order item")
     
-    return {"message": "Order item deleted successfully"}
+#     return {"message": "Order item deleted successfully"}

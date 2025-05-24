@@ -35,7 +35,6 @@ def get_order_by_id(
 ):
     query = db.query(Order).filter(Order.id == id)
 
-    # load order_items ด้วย joinedload เฉพาะตอนต้องใช้
     if include_items or include_group_order_items:
         query = query.options(joinedload(Order.order_items))
 
@@ -44,14 +43,31 @@ def get_order_by_id(
     if not order:
         return None
 
-    # จัดกลุ่ม order_items ถ้าต้องการ
+    # Custom order for statuses
+    status_order = {
+        "pending": 0,
+        "preparing": 1,
+        "served": 2,
+        "cancelled": 3
+    }
+
+    # Sort all order_items
+    if include_items or include_group_order_items:
+        order.order_items = sorted(
+            order.order_items,
+            key=lambda x: (
+                status_order.get(x.status, 99),  # Default unknown status goes last
+                x.created_at
+            )
+        )
+
+    # Grouped order_items
     if include_group_order_items:
         groups = defaultdict(list)
         for item in order.order_items:
             order_date = item.created_at.strftime("%Y-%m-%d %H:%M:%S")
             groups[order_date].append(item)
 
-        # แนบ group_order_items เข้าไปใน object (ทำงานเฉพาะ Pydantic schema ที่รับจาก_attributes)
         order.group_order_items = [
             {
                 "created_at": order_date,
@@ -62,12 +78,11 @@ def get_order_by_id(
     else:
         order.group_order_items = []
 
-    # ถ้าไม่ต้องการ order_items → ล้างทิ้งให้ไม่ส่งออก
+    # ⚪ Remove order_items if not needed
     if not include_items:
         order.order_items = []
-        
-    return order
 
+    return order
 def create_order(db: Session, order: OrderCreate):
     overlapping_order = db.query(Order).filter(
         Order.table_id == order.table_id,  # ตรวจสอบตาม table_id

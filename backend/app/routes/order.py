@@ -34,6 +34,14 @@ resource_permissions = {
     ]
 }
 
+status_order = {
+    'pending': 0,
+    'reserved': 1,
+    'active': 2,
+    'completed': 3,
+    'cancelled': 4
+}
+
 router = APIRouter(
     prefix=prefix,
     tags=["Orders"],
@@ -49,9 +57,11 @@ def get_orders(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
     search: Optional[str] = Query(None),
-    search_fields: Optional[List[str]] = Query(["id", "name"]),
-    order_by: Optional[List[str]] = Query(None)  # เช่น ["name:asc", "created_at:desc"]
+    status: Optional[str] = Query(None),
+    search_fields: Optional[List[str]] = Query(["id", "table_id", "status"]),
+    order_by: Optional[List[str]] = Query(None)
 ):
+
     items, total, pages = paginate_controller(
         db=db,
         model=Order,
@@ -60,8 +70,14 @@ def get_orders(
         search=search,
         order_by=order_by,
         search_fields=search_fields,
-        options=[joinedload(Order.customer)]
+        options=[joinedload(Order.customer)],
+        where=status and {"status": status} or None
     )
+    
+    # items = sorted(
+    #     items,
+    #     key=lambda x: status_order.get(x.status, 999)
+    # )
     
     return BaseResponse(
         success=True,
@@ -88,7 +104,7 @@ def order(
         message="Order fetched successfully",
         data=db_order
     )
-    
+
 @router.post("/", response_model=BaseResponse[OrderResponse], response_model_exclude={"pagination"})
 def create_order(order: OrderCreate, db: Session = Depends(get_db)):
     db_order = order_controller.create_order(db=db, order=order)

@@ -1,6 +1,6 @@
 from app.utils.query_utils import count_pagination_items, get_pagination_items, parse_order_by_params
 from sqlalchemy.orm import Session
-from typing import List, Optional, Type, Tuple
+from typing import List, Optional, Type, Tuple, Dict, Any
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 def paginate_controller(
@@ -11,7 +11,8 @@ def paginate_controller(
     order_by: Optional[List[str]] = None,
     search: Optional[str] = None,
     search_fields: Optional[List[str]] = None,
-    options: Optional[list] = None
+    options: Optional[list] = None,
+    where: Optional[Dict[str, Any]] = None
 ) -> Tuple[List[DeclarativeMeta], int, int]:
     skip = (page - 1) * page_size
     parsed_order_by = parse_order_by_params(order_by) if order_by else []
@@ -24,7 +25,8 @@ def paginate_controller(
         search=search,
         search_fields=search_fields or ["id", "name"],
         order_by=parsed_order_by,
-        options=options or None,
+        options=options,
+        where=where,
     )
 
     total = count_pagination_items(

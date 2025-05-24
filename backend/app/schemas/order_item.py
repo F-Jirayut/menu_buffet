@@ -7,7 +7,7 @@ from datetime import datetime
 class OrderItemBase(BaseModel):
     order_id: int
     menu_id: int
-    menu_name: str
+    menu_name: Optional[str] = None
     quantity: int = Field(default=1, ge=1, le=5)
     price: Decimal = Field(default=0, ge=0)
     status: Literal['pending', 'preparing', 'served', 'cancelled'] = 'pending'
@@ -25,8 +25,9 @@ class OrderItemCreate(OrderItemBase):
     pass
 
 class OrderItemUpdate(BaseModel):
-    quantity: Optional[int]
-    status: Optional[Literal['pending', 'preparing', 'served', 'cancelled']]
+    id: int
+    quantity: Optional[int] = None
+    status: Optional[Literal['pending', 'preparing', 'served', 'cancelled']] = None
     note: Optional[str] = None
 
 class OrderItemResponse(OrderItemBase):

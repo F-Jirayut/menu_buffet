@@ -2,11 +2,39 @@ import { axiosInstance } from '@/services/axiosConfig'
 
 const prefix = 'orders'
 
-export const getOrders = async ({ page = 1, page_size = 10, search = null }) => {
+export const getOrders = async ({
+    page = 1,
+    page_size = 10,
+    search = null,
+    status = null,
+    order_by = ['started_at:desc'],
+}) => {
     return await axiosInstance.get(`/${prefix}`, {
-        params: { page, page_size, search },
-    })
-}
+        params: {
+            page,
+            page_size,
+            search,
+            status,
+            order_by,
+        },
+        paramsSerializer: (params) => {
+            const searchParams = new URLSearchParams();
+
+            for (const key in params) {
+                const value = params[key];
+                if (Array.isArray(value)) {
+                    value.forEach(v => searchParams.append(key, v));
+                } else if (value !== null && value !== undefined) {
+                    searchParams.append(key, value);
+                }
+            }
+
+            return searchParams.toString();
+        },
+    });
+};
+
+
 
 export const createOrder = async (data) => {
     return await axiosInstance.post(`/${prefix}`, data)
