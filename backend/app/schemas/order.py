@@ -51,6 +51,9 @@ class OrderUpdate(OrderBase):
 
 class OrderItemGroup(BaseModel):
     created_at: datetime
+    order_id: Optional[int] = None
+    table_id: Optional[int] = None
+    table_name: Optional[str] = None
     order_items: List[OrderItemInDB]
     
     model_config = ConfigDict(json_encoders={datetime: lambda v: v.strftime('%Y-%m-%d %H:%M:%S')})

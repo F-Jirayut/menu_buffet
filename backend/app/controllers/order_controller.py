@@ -36,7 +36,7 @@ def get_order_by_id(
     query = db.query(Order).filter(Order.id == id)
 
     if include_items or include_group_order_items:
-        query = query.options(joinedload(Order.order_items))
+        query = query.options(joinedload(Order.order_items), joinedload(Order.table))
 
     order = query.first()
 
@@ -61,6 +61,7 @@ def get_order_by_id(
             )
         )
 
+    table = order.table if hasattr(order, 'table') else None
     # Grouped order_items
     if include_group_order_items:
         groups = defaultdict(list)
@@ -71,13 +72,16 @@ def get_order_by_id(
         order.group_order_items = [
             {
                 "created_at": order_date,
-                "order_items": items
+                "order_id": order.id,
+                "order_items": items,
+                "table_id": table.id if table else None,
+                "table_name": table.name if table else None
             }
             for order_date, items in groups.items()
         ]
     else:
         order.group_order_items = []
-
+    print(order.group_order_items) 
     # ⚪ Remove order_items if not needed
     if not include_items:
         order.order_items = []

@@ -95,7 +95,6 @@ const fetchCustomers = async () => {
     per_page: pageSize.value,
     search: search.value
   });
-  console.log(customersStore.items)
 };
 
 const handleSearch = async () => {

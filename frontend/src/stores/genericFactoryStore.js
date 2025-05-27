@@ -11,7 +11,6 @@ export function createGenericStore(service) {
     error.value = null;
     try {
       const response = await service.getAll(params);
-      console.log(response)
       items.value = response.data.data;
       pagination.value = response.data.pagination || {};
     } catch (err) {

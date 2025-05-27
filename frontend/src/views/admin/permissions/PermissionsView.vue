@@ -94,7 +94,6 @@ const fetchPermissions = async () => {
     per_page: pageSize.value,
     search: search.value
   });
-  console.log(permissionsStore.items)
 };
 
 const handleSearch = async () => {

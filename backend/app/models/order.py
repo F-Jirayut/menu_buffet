@@ -22,3 +22,4 @@ class Order(Base):
     customer = relationship("Customer", back_populates="orders")
     payment_proofs = relationship("OrderPaymentProof", back_populates="order")
     order_items = relationship("OrderItem", back_populates="order")
+    table = relationship("Table", back_populates="orders")

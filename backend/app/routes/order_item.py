@@ -1,18 +1,21 @@
+from tokenize import group
 from app.controllers import order_item_controller
-from app.utils.query_utils import count_pagination_items, get_pagination_items, parse_order_by_params
-from app.schemas.pagination import Pagination
-from app.controllers.controller import paginate_controller
+# from app.utils.query_utils import apply_count_to_query, apply_pagination_to_query
+# from app.schemas.pagination import Pagination
+# from app.controllers.controller import paginate_controller
 from app.models import OrderItem
 from fastapi import APIRouter, Depends, HTTPException,Query, Body
-from fastapi.responses import StreamingResponse
-from sqlalchemy.orm import Session, joinedload
-from app.schemas.order_item import OrderItemResponse, OrderItemCreate, OrderItemUpdate
+from sqlalchemy.orm import Session
+from sqlalchemy import or_, cast, String, desc, asc
+from app.schemas.order_item import GroupedOrderItemResponse, OrderItemResponse, OrderItemCreate, OrderItemUpdate
 from app.schemas.base_response import BaseResponse
 from app.database import Database
 from app.dependencies.auth import get_current_user
 from app.dependencies.user_permission import check_permissions
 from typing import List, Optional
 import re
+from datetime import date as lib_date, time, timedelta, datetime
+from collections import defaultdict
 
 db_instance = Database()
 get_db = db_instance.get_db
@@ -43,37 +46,77 @@ router = APIRouter(
     ]
 )
 
-@router.get("/", response_model=BaseResponse[List[OrderItemResponse]])
+@router.get("/grouped", response_model=BaseResponse[List[GroupedOrderItemResponse]])
 def get_orders(
     db: Session = Depends(get_db),
-    page: int = Query(1, ge=1),
-    page_size: int = Query(10, ge=1, le=100),
-    search: Optional[str] = Query(None),
-    search_fields: Optional[List[str]] = Query(["id", "name"]),
-    order_by: Optional[List[str]] = Query(None)  # เช่น ["name:asc", "created_at:desc"]
+    order_by: Optional[List[str]] = Query(None),
+    date: lib_date = Query(default_factory=lib_date.today),
 ):
-    items, total, pages = paginate_controller(
+    group_order_items = order_item_controller.get_grouped_order_items(
         db=db,
-        model=OrderItem,
-        page=page,
-        page_size=page_size,
-        search=search,
-        order_by=order_by,
-        search_fields=search_fields,
-        options=[joinedload(OrderItem.menu)]
+        date=date,
+        order_by=order_by
     )
-    
+
     return BaseResponse(
         success=True,
         message="Order items fetched successfully",
-        data=items,
-        pagination=Pagination(
-            page=page,
-            page_size=page_size,
-            total=total,
-            pages=pages
-        )
+        data=group_order_items,
     )
+
+# @router.get("/", response_model=BaseResponse[List[OrderItemResponse]])
+# def get_orders(
+#     db: Session = Depends(get_db),
+#     page: int = Query(1, ge=1),
+#     page_size: int = Query(10, ge=1, le=100),
+#     search: Optional[str] = Query(None),
+#     search_fields: Optional[List[str]] = Query(["id", "name"]),
+#     order_by: Optional[List[str]] = Query(None),
+#     date: lib_date = Query(default_factory=lib_date.today),
+# ):
+#     skip = (page - 1) * page_size
+
+#     start_datetime = datetime.combine(date, time.min)
+#     end_datetime = datetime.combine(date, time.max)
+
+#     query = db.query(OrderItem).filter(
+#         OrderItem.created_at >= start_datetime,
+#         OrderItem.created_at <= end_datetime,
+#     )
+
+#     if search:
+#         conditions = [
+#             getattr(OrderItem, field).ilike(f"%{search}%")
+#             for field in search_fields or []
+#             if hasattr(OrderItem, field)
+#         ]
+#         if conditions:
+#             query = query.filter(or_(*conditions))
+
+#     if order_by:
+#         for order in order_by:
+#             field, _, direction = order.partition(":")
+#             if hasattr(OrderItem, field):
+#                 column = getattr(OrderItem, field)
+#                 query = query.order_by(desc(column) if direction == "desc" else asc(column))
+#     else:
+#         query = query.order_by(OrderItem.id.asc())
+
+#     total = apply_count_to_query(query)
+#     items = apply_pagination_to_query(query, skip=skip, limit=page_size)
+#     pages = (total + page_size - 1) // page_size
+
+#     return BaseResponse(
+#         success=True,
+#         message="Order items fetched successfully",
+#         data=items,
+#         pagination=Pagination(
+#             page=page,
+#             page_size=page_size,
+#             total=total,
+#             pages=pages
+#         )
+#     )
     
 @router.get("/{order_id}", response_model=BaseResponse[OrderItemResponse], response_model_exclude={"pagination"})
 def order(

@@ -1,6 +1,7 @@
 from operator import ge
+# from app.schemas.order import OrderBase
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional, Literal
+from typing import Optional, Literal, List
 from decimal import Decimal
 from datetime import datetime
 
@@ -32,6 +33,16 @@ class OrderItemUpdate(BaseModel):
 
 class OrderItemResponse(OrderItemBase):
     id: int
+    
+class GroupedOrderItemResponse(BaseModel):
+    order_id: int
+    table_id: int
+    table_name: str
+    created_at: datetime
+    order_items: List[OrderItemResponse]
+
+    model_config = ConfigDict(json_encoders={datetime: lambda v: v.strftime('%Y-%m-%d %H:%M:%S')})
+
 
 class OrderItemInDB(OrderItemBase):
     id: int

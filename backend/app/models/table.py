@@ -1,5 +1,6 @@
 from sqlalchemy import Column, BigInteger, String, Integer, Text, Boolean, TIMESTAMP, func
 from app.database import Base
+from sqlalchemy.orm import relationship
 
 class Table(Base):
     __tablename__ = 'tables'
@@ -13,3 +14,5 @@ class Table(Base):
     created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
     updated_at = Column(TIMESTAMP, nullable=False, server_default=func.now(), onupdate=func.now())
     deleted_at = Column(TIMESTAMP, nullable=True)
+
+    orders = relationship("Order", back_populates="table")

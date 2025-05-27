@@ -2,9 +2,54 @@ import { axiosInstance } from '@/services/axiosConfig'
 
 const prefix = 'order_items'
 
-export const getOrderItems = async ({ page = 1, page_size = 10, search = null }) => {
+export const getOrderItems = async (
+    { 
+        date=new Date().toISOString().split('T')[0] ,
+        // page = 1, 
+        // page_size = 10, 
+        // search = null, 
+        order_by = ['created_at:desc'] 
+    }) => {
     return await axiosInstance.get(`/${prefix}`, {
-        params: { page, page_size, search },
+        params: { date, order_by },
+        paramsSerializer: (params) => {
+            const searchParams = new URLSearchParams()
+
+            for (const key in params) {
+                const value = params[key]
+                if (Array.isArray(value)) {
+                    value.forEach(v => searchParams.append(key, v))
+                } else if (value !== null && value !== undefined) {
+                    searchParams.append(key, value)
+                }
+            }
+
+            return searchParams.toString()
+        },
+    })
+}
+
+export const getOrderItemsGrouped = async (
+    { 
+        date=new Date().toISOString().split('T')[0] ,
+        order_by = ['created_at:desc'] 
+    }) => {
+    return await axiosInstance.get(`/${prefix}/grouped`, {
+        params: { date, order_by },
+        paramsSerializer: (params) => {
+            const searchParams = new URLSearchParams()
+
+            for (const key in params) {
+                const value = params[key]
+                if (Array.isArray(value)) {
+                    value.forEach(v => searchParams.append(key, v))
+                } else if (value !== null && value !== undefined) {
+                    searchParams.append(key, value)
+                }
+            }
+
+            return searchParams.toString()
+        },
     })
 }
 

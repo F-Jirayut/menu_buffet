@@ -1,5 +1,5 @@
 from typing import List, Optional, Type, Union, Tuple, Dict, Any
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, Query
 from sqlalchemy import or_, cast, String, desc, asc
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
@@ -75,3 +75,13 @@ def parse_order_by_params(order_by: List[str]) -> List[Tuple[str, bool]]:
         is_desc = direction == "desc"
         parsed.append((field, is_desc))
     return parsed
+
+def apply_pagination_to_query(
+    query: Query,
+    skip: int = 0,
+    limit: int = 10,
+):
+    return query.offset(skip).limit(limit).all()
+
+def apply_count_to_query(query: Query) -> int:
+    return query.count()

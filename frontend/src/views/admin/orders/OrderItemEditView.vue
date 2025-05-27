@@ -14,45 +14,7 @@
           {{ ordersStore.error }}
         </div>
 
-        <div class="mb-3 d-flex gap-2">
-          <button
-            type="button"
-            class="btn"
-            :class="
-              visibleSection === 'all' ? 'btn-primary' : 'btn-outline-primary'
-            "
-            @click="visibleSection = 'all'"
-          >
-            แสดงทั้งหมด
-          </button>
-
-          <button
-            type="button"
-            class="btn"
-            :class="
-              visibleSection === 'form' ? 'btn-primary' : 'btn-outline-primary'
-            "
-            @click="visibleSection = 'form'"
-          >
-            คำสั่งซื้อ
-          </button>
-
-          <button
-            type="button"
-            class="btn"
-            :class="
-              visibleSection === 'group' ? 'btn-primary' : 'btn-outline-primary'
-            "
-            @click="visibleSection = 'group'"
-          >
-            รายการอาหาร
-          </button>
-        </div>
-
-        <form
-          v-if="visibleSection === 'all' || visibleSection === 'form'"
-          @submit.prevent="submitForm"
-        >
+        <form @submit.prevent="submitForm">
           <div class="row mb-4">
             <div
               class="mb-3 col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6"
@@ -200,14 +162,7 @@
           </div>
         </form>
 
-      <GroupedOrderItems
-        v-if="visibleSection === 'all' || visibleSection === 'group'"
-        :groupOrderItems="groupOrderItems"
-        :orderItemStatusOptions="orderItemStatusOptions"
-        @group-status-change="updateGroupStatus"
-        @item-status-change="updateItemStatus"
-      />
-    </div>
+      </div>
       <LoadingOverlay v-else />
     </div>
   </Layout>
@@ -231,7 +186,6 @@ import LoadingOverlay from "@/components/LoadingOverlay.vue";
 import Breadcrumbs from "@/components/Breadcrumbs.vue";
 import { getOptions } from "@/services/optionService";
 import { updateOrderItems } from "@/services/orderItemService";
-import GroupedOrderItems from "@/components/admin/orders/GroupedOrderItems.vue";
 
 const ordersStore = useOrderStore();
 const router = useRouter();
@@ -259,16 +213,13 @@ const form = ref({
   note: null,
   email_sent: null,
 });
-const groupOrderItems = ref([]);
 const isOnMounted = ref(false);
-const visibleSection = ref("all");
 
 onMounted(async () => {
   if (isEditMode.value) {
     const order = await ordersStore.fetchDataById(id);
     if (order) {
       const customer = order.customer;
-      groupOrderItems.value = order.group_order_items || [];
       form.value = {
         table_id: order.table_id,
         customer_id: customer ? customer.id : null,

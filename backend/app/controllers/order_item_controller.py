@@ -4,10 +4,50 @@ from app.schemas.order_item import OrderItemCreate, OrderItemUpdate
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException, status
-from sqlalchemy import func, or_, cast, String, and_
+from sqlalchemy import func, or_, cast, String, and_, desc, asc
 from typing import Dict, Optional, List
-from datetime import datetime
+from datetime import date as lib_date, time, timedelta, datetime
 import zoneinfo
+from collections import defaultdict
+
+def get_grouped_order_items(db: Session, date: lib_date, order_by: Optional[List[str]] = None):
+    start_datetime = datetime.combine(date, time.min)
+    end_datetime = datetime.combine(date, time.max)
+
+    query = db.query(OrderItem).filter(
+        OrderItem.created_at >= start_datetime,
+        OrderItem.created_at <= end_datetime,
+    )
+
+    if order_by:
+        for order in order_by:
+            field, _, direction = order.partition(":")
+            if hasattr(OrderItem, field):
+                column = getattr(OrderItem, field)
+                query = query.order_by(desc(column) if direction == "desc" else asc(column))
+    else:
+        query = query.order_by(OrderItem.id.asc())
+
+    order_items = query.options(joinedload(OrderItem.order).joinedload(Order.table)).all()
+
+    groups = defaultdict(list)
+    for item in order_items:
+        order = item.order
+        table = order.table if order else None
+        group_key = (item.created_at.strftime("%Y-%m-%d %H:%M:%S"), order.id, order.table_id, table.name if table else "")
+        groups[group_key].append(item)
+
+    group_order_items = [
+        {
+            "created_at": created_at,
+            "order_id": order_id,
+            "table_id": table_id,
+            "table_name": table_name,
+            "order_items": items
+        }
+        for (created_at, order_id, table_id, table_name), items in groups.items()
+    ]
+    return group_order_items
 
 def get_order_items(db: Session, search: Optional[str] = None):
     query = db.query(OrderItem)
