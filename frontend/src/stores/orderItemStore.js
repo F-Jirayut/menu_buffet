@@ -21,7 +21,7 @@ export const useOrderItemStore = defineStore('orderItem', () => {
     update: orderItemService.updateOrderItems,
   });
 
-  const listStatus = ref(['pending', 'reserved', 'active', 'completed', 'cancelled']);
+  const listStatus = ref(["pending", "preparing", "served", "cancelled",]);
   const groupedItems = ref([]);
 
   const fetchDataGrouped = async (params = {}) => {

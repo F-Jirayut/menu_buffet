@@ -11,6 +11,7 @@ import food from './food.js'
 import table from './table.js'
 import order from './order.js'
 import customer from './customer.js'
+// import orderItem from './orderItem.js'
 
 const routes = [
   ...home,
@@ -22,6 +23,7 @@ const routes = [
   ...table,
   ...order,
   ...customer,
+  // ...orderItem,
   // ใส่ route not found ก็ได้
   {
     path: '/:pathMatch(.*)*',

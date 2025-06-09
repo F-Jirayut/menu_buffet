@@ -1,6 +1,6 @@
 
 
-from app.models import Order
+from app.models import Order, OrderItem, Menu
 from app.schemas.order import OrderCreate, OrderUpdate
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import SQLAlchemyError
@@ -87,17 +87,18 @@ def get_order_by_id(
         order.order_items = []
 
     return order
+
 def create_order(db: Session, order: OrderCreate):
     overlapping_order = db.query(Order).filter(
-        Order.table_id == order.table_id,  # ตรวจสอบตาม table_id
-        Order.status != 'completed',  # ตรวจสอบว่าไม่ใช่สถานะ 'completed'
-        Order.started_at < order.ended_at,  # started_at ของคำสั่งซื้อใหม่ต้องหลังจาก ended_at ของคำสั่งซื้อเก่า
-        Order.ended_at > order.started_at  # ended_at ต้องหลังจาก started_at ของคำสั่งซื้อใหม่
+        Order.table_id == order.table_id,
+        Order.status != 'completed',
+        Order.started_at < order.ended_at,
+        Order.ended_at > order.started_at
     ).first()
 
     if overlapping_order:
         raise HTTPException(status_code=400, detail="มีคำสั่งซื้อที่มีอยู่แล้วและมีระยะเวลาทับซ้อนกัน")
-    
+
     db_order = Order(
         table_id=order.table_id,
         customer_id=order.customer_id,
@@ -109,11 +110,36 @@ def create_order(db: Session, order: OrderCreate):
         note=order.note,
     )
 
-    db.add(db_order)
-
     try:
+        db.add(db_order)
+        db.flush()
+
+        db_items = []
+        if order.order_items:
+            for item in order.order_items:
+                db_menu = db.query(Menu).filter(Menu.id == item.menu_id).first()
+                if not db_menu:
+                    raise HTTPException(status_code=404, detail=f"Menu not found for ID {item.menu_id}")
+
+                today = datetime.now()
+                db_items.append(OrderItem(
+                    order_id=db_order.id,
+                    menu_id=item.menu_id,
+                    menu_name=db_menu.name,
+                    quantity=item.quantity,
+                    price=item.price,
+                    status=item.status,
+                    note=item.note,
+                    created_at=today,
+                    updated_at=today,
+                ))
+
+        db.add_all(db_items)
         db.commit()
         db.refresh(db_order)
+        for item in db_items:
+            db.refresh(item)
+
     except SQLAlchemyError as e:
         db.rollback()
         print(str(e))
@@ -150,6 +176,28 @@ def update_order(db: Session, order_id: int, order: OrderUpdate) -> Order:
 
     # บันทึกการอัปเดต
     try:
+        db_items = []
+        if order.order_items:
+            for item in order.order_items:
+                db_menu = db.query(Menu).filter(Menu.id == item.menu_id).first()
+                if not db_menu:
+                    raise HTTPException(status_code=404, detail=f"Menu not found for ID {item.menu_id}")
+
+                today = datetime.now()
+                db_items.append(OrderItem(
+                    order_id=db_order.id,
+                    menu_id=item.menu_id,
+                    menu_name=db_menu.name,
+                    quantity=item.quantity,
+                    price=item.price,
+                    status=item.status,
+                    note=item.note,
+                    created_at=today,
+                    updated_at=today,
+                ))
+
+        db.add_all(db_items)
+    
         db.commit()
         db.refresh(db_order)
     except SQLAlchemyError as e:

@@ -188,4 +188,6 @@ def delete_menu(db: Session, menu_id: int):
 
     return {"message": "Menu deleted successfully"}
 
+def get_option_menus(db: Session):
+    return db.query(Menu).order_by(Menu.sort_order).all()
 

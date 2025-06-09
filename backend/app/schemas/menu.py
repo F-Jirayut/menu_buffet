@@ -32,3 +32,8 @@ class MenuInDB(MenuBase):
     id: int
     image_disk: Optional[str] = None
     image_path: Optional[str] = None
+
+class OptionMenu(BaseModel):
+    id: int
+    name: str = Field(..., example="ข้าวผัดกะเพรา")
+    image_url: Optional[str] = None

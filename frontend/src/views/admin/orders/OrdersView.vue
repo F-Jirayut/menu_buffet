@@ -34,7 +34,9 @@
         </button>
       </div>
 
-      <div v-if="visibleSection === 'orders' && permissionSet.has('Order.View')">
+      <div
+        v-if="visibleSection === 'orders' && permissionSet.has('Order.View')"
+      >
         <!-- Search & Add Button -->
         <div class="row align-items-center mb-4">
           <div class="col-md-2">
@@ -42,7 +44,7 @@
               id="orderStatus"
               class="form-select"
               required
-              v-model="searchStatus"
+              v-model="searchOrderStatus"
               @change="fetchOrders"
             >
               <option value="">ทั้งหมด</option>
@@ -102,34 +104,50 @@
         </div>
       </div>
 
-      <div v-else-if="visibleSection === 'order_items' && permissionSet.has('OrderItem.View')">
+      <div
+        v-else-if="
+          visibleSection === 'order_items' &&
+          permissionSet.has('OrderItem.View')
+        "
+      >
         <!-- Search & Add Button -->
         <div class="row align-items-center mb-4">
           <div class="col-md-2">
-            <input type="date" class="form-control" v-model="selectedDate" v-on:change="fetchOrderItems" />
+            <select
+              class="form-select"
+              v-model="searchOrderItemStatus"
+              @change="fetchOrderItems"
+            >
+              <option value="">ทั้งหมด</option>
+              <option
+                v-for="status in orderItemStatusOptions"
+                :key="status"
+                :value="status"
+              >
+                {{ status }}
+              </option>
+            </select>
           </div>
 
-          <div
-            class="col-md-4 d-flex justify-content-md-end justify-content-start mt-2 mt-md-0 ms-md-auto"
-            v-if="permissionSet.has('OrderItem.Create')"
-          >
-            <router-link
-              to="/admin/orders/edit"
-              class="btn btn-primary shadow-sm"
-            >
-              <i class="bi bi-plus-lg me-1"></i> เพิ่มรายการอาหาร
-            </router-link>
+          <div class="col-md-2">
+            <input
+              type="date"
+              class="form-control"
+              v-model="selectedDate"
+              v-on:change="fetchOrderItems"
+            />
           </div>
+
         </div>
 
         <!-- Table Section -->
-      <GroupedOrderItems
-        v-if="visibleSection === 'order_items'"
-        :groupOrderItems="orderItemStore.groupedItems"
-        :orderItemStatusOptions="orderItemStatusOptions"
-        @group-status-change="updateGroupStatus"
-        @item-status-change="updateItemStatus"
-      />
+        <GroupedOrderItems
+          v-if="visibleSection === 'order_items'"
+          :groupOrderItems="orderItemStore.groupedItems"
+          :orderItemStatusOptions="orderItemStatusOptions"
+          @group-status-change="updateGroupStatus"
+          @item-status-change="updateItemStatus"
+        />
       </div>
     </div>
   </Layout>
@@ -160,12 +178,13 @@ const ordersStore = useOrderStore();
 const orderItemStore = useOrderItemStore();
 const permissionSet = computed(() => new Set(auth.user?.permissions));
 
-const searchStatus = ref("");
+const searchOrderStatus = ref("");
+const searchOrderItemStatus = ref("");
 const search = ref("");
 const currentPage = ref(1);
 const pageSize = ref(10);
 const visibleSection = ref("orders");
-const selectedDate = ref(new Date().toISOString().split('T')[0])
+const selectedDate = ref(new Date().toISOString().split("T")[0]);
 
 const columns = [
   { label: "ID", key: "id" },
@@ -177,15 +196,11 @@ const columns = [
   { label: "ราคา", key: "total_price" },
 ];
 
-const orderItemStatusOptions = ref([
-  "pending",
-  "preparing",
-  "served",
-  "cancelled",
-]);
+const orderItemStatusOptions = ref(["pending", "preparing", "served", "cancelled"]);
 
 onMounted(async () => {
   await fetchOrders();
+  await fetchOrderItems();
 });
 
 watch(currentPage, async () => {
@@ -197,13 +212,14 @@ const fetchOrders = async () => {
     page: currentPage.value,
     per_page: pageSize.value,
     search: search.value,
-    status: searchStatus.value,
+    status: searchOrderStatus.value,
   });
 };
 
 const fetchOrderItems = async () => {
   await orderItemStore.fetchDataGrouped({
     date: selectedDate.value,
+    status: searchOrderItemStatus.value,
   });
 };
 

@@ -31,11 +31,12 @@ export const getOrderItems = async (
 
 export const getOrderItemsGrouped = async (
     { 
-        date=new Date().toISOString().split('T')[0] ,
+        date=new Date().toISOString().split('T')[0],
+        status = null,
         order_by = ['created_at:desc'] 
     }) => {
     return await axiosInstance.get(`/${prefix}/grouped`, {
-        params: { date, order_by },
+        params: { date, status, order_by },
         paramsSerializer: (params) => {
             const searchParams = new URLSearchParams()
 

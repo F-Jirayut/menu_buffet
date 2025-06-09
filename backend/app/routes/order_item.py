@@ -51,10 +51,12 @@ def get_orders(
     db: Session = Depends(get_db),
     order_by: Optional[List[str]] = Query(None),
     date: lib_date = Query(default_factory=lib_date.today),
+    status: Optional[str] = Query(None),
 ):
     group_order_items = order_item_controller.get_grouped_order_items(
         db=db,
         date=date,
+        status=status,
         order_by=order_by
     )
 

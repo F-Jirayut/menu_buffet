@@ -23,3 +23,7 @@ export const deleteMenu = async (id) => {
 export const getMenuById = async (id) => {
     return await axiosInstance.get(`/${prefix}/${id}`)
 }
+
+export const getMenuOptions = async () => {
+    return await axiosInstance.get(`/${prefix}/options/list`)
+}

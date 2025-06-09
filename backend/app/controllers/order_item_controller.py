@@ -10,7 +10,7 @@ from datetime import date as lib_date, time, timedelta, datetime
 import zoneinfo
 from collections import defaultdict
 
-def get_grouped_order_items(db: Session, date: lib_date, order_by: Optional[List[str]] = None):
+def get_grouped_order_items(db: Session, date: lib_date, status: Optional[str] = None, order_by: Optional[List[str]] = None):
     start_datetime = datetime.combine(date, time.min)
     end_datetime = datetime.combine(date, time.max)
 
@@ -18,6 +18,9 @@ def get_grouped_order_items(db: Session, date: lib_date, order_by: Optional[List
         OrderItem.created_at >= start_datetime,
         OrderItem.created_at <= end_datetime,
     )
+    
+    if status:
+        query = query.filter(OrderItem.status == status)
 
     if order_by:
         for order in order_by:

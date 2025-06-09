@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Form, Query
 from sqlalchemy.orm import Session
 from app.controllers import menu_controller
-from app.schemas.menu import MenuResponse, MenuCreate, MenuUpdate
+from app.schemas.menu import MenuResponse, MenuCreate, MenuUpdate, OptionMenu
 from app.models import Menu
 from app.schemas.base_response import BaseResponse
 from app.schemas.pagination import Pagination
@@ -172,4 +172,15 @@ def delete_menu(menu_id: int, db: Session = Depends(get_db)):
         success=True,
         message="Menu deleted successfully",
         data=None
+    )
+
+@router.get("/options/list", response_model=BaseResponse[List[OptionMenu]], response_model_exclude_none=True)
+def get_option_menus(
+    db: Session = Depends(get_db)
+):
+    option_menus = menu_controller.get_option_menus(db=db)
+    return BaseResponse(
+        success=True,
+        message="Option menus fetched successfully",
+        data=option_menus,
     )
